@@ -30,7 +30,7 @@ class CSVDataSourceTest {
   @test("should throw an exception if it cant find the file")
   parse_demo_csv() {
     try {
-      let importer = new CSVDataSource("../../tests/nonexistingfoo.csv");
+      let importer = new CSVDataSource("../../tests/nonexistingfoo.csv", null);
     } catch (e) {
       if (e instanceof Error) {
         expect(e.message).to.equal("File not found: ../../tests/nonexistingfoo.csv");
