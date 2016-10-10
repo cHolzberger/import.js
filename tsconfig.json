@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"module": "commonjs",
+		"target": "es6",
+		"noImplicitAny": true,
+		"outDir": "dist",
+    "types": ["node"]
+
+	},
+	"files": [
+		"src/DataSource.ts",
+		"src/ImportJob.ts",
+		"src/ImportPayload.ts",
+		"src/ImportWorkflow.ts",
+		"tests/test.ts"
+	]
+}

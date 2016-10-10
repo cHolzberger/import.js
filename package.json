@@ -1,0 +1,31 @@
+{
+  "name": "import.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npm install autodts",
+    "postinstall": "autodts link",
+    "prepublish": "tsc && autodts generate",
+    "test": "node tests/test.js"
+  },
+  "dependencies": {
+    "autodts": "0.0.6"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^2.5.35",
+    "@types/node": "^6.0.45",
+    "autodts": "0.0.6",
+    "jasmine": "^2.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cHolzberger/import.js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cHolzberger/import.js/issues"
+  },
+  "homepage": "https://github.com/cHolzberger/import.js#readme"
+}
