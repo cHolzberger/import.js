@@ -4,28 +4,53 @@ import {expect} from 'chai';
 import { CSVDataSource } from "../src/CSVDataSource";
 import { ImportPayload } from "../src/ImportPayload";
 
+class CSVCols extends ImportPayload {
+    @CSVDataSource.column({ index: 0 })
+    spalte_a: string
+
+    @CSVDataSource.column({ index: 1 })
+    spalte_b: string
+
+    @CSVDataSource.column({ index: 2 })
+    spalte_c: string
+}
+
+class CSVHeadlineCols extends ImportPayload {
+    @CSVDataSource.regexColumn({ regex: /COLA/ })
+    spalte_a: string
+
+    @CSVDataSource.regexColumn({ regex: /COLB/ })
+    spalte_b: string
+
+    @CSVDataSource.regexColumn({ regex: /COLC/ })
+    spalte_c: string
+}
+
 @suite("A CSVDataSource")
 class CSVDataSourceTest {
     @test("should know about its fields")
-    test_annotations () {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index:0})
-        spalte_a: string
-      }
-      let x = new CSVCols();
-      console.dir(x);
-      console.dir(x.constructor);
-      console.log(x.fields.spalte_a);
+    test_annotations() {
+        class CSVColsTest extends ImportPayload {
+            @CSVDataSource.column({ index: 0 })
+            spalte_a: string
+
+            @CSVDataSource.column({ index: 1 })
+            spalte_b: string
+
+            @CSVDataSource.column({ index: 2 })
+            spalte_c: string
+        }
+        let x = new CSVColsTest();
+        expect(CSVColsTest.getFields().spalte_c.index).to.equal(2);
+        expect(CSVColsTest.getFields().spalte_b.index).to.equal(1);
+        expect(CSVColsTest.getFields().spalte_a.index).to.equal(0);
+
     }
 
     @test("should parse the test csv file")
     parse_test_csv_file() {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index: 0})
-        spalte_a: string
-      }
-
-        let importer = new CSVDataSource("tests/CSVImporterTest.csv",CSVCols);
+        let importer = new CSVDataSource(CSVCols);
+        importer.open("tests/CSVImporterTest.csv");
         // payload mockup:
         // { spalte_a: 1, spalte_b: 2, spalte_c: 3}
         // { spalte_a: a, spalte_b: b, spalte_c: c}
@@ -34,13 +59,9 @@ class CSVDataSourceTest {
 
     @test("should throw an exception if it cant find the file")
     parse_demo_csv() {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index: 0})
-        spalte_a: string
-      }
-
         try {
-            let importer = new CSVDataSource("../../tests/nonexistingfoo.csv", CSVCols);
+            let importer = new CSVDataSource(CSVCols);
+            importer.open("../../tests/nonexistingfoo.csv");
         } catch (e) {
             if (e instanceof Error) {
                 expect(e.message).to.equal("File not found: ../../tests/nonexistingfoo.csv");
@@ -50,20 +71,11 @@ class CSVDataSourceTest {
 
     @test("should parse the test csv file according to a col definition")
     parse_test_csv_file_rows() {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index: 0})
-        spalte_a: string
+        let importer = new CSVDataSource(CSVCols);
+        importer.open("tests/CSVImporterTest.csv");
 
-        @CSVDataSource.column({index: 1})
-        spalte_b: string
-
-        @CSVDataSource.column({index: 2})
-        spalte_c: string
-      }
-
-        let importer = new CSVDataSource("tests/CSVImporterTest.csv", CSVCols);
         let gen = importer.generatePayload();
-        let first_row:CSVCols = <CSVCols>(gen.next().value);
+        let first_row: CSVCols = <CSVCols>(gen.next().value);
         let second_row = <CSVCols>(gen.next().value);
 
         expect(first_row.spalte_a).to.equal("1");
@@ -77,13 +89,15 @@ class CSVDataSourceTest {
 
     @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
     parse_test_csv_file_rows_high_index() {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index: 100})
-        spalte_a: string
-      }
+        class CSVColsXXL extends ImportPayload {
+            @CSVDataSource.column({ index: 100 })
+            spalte_a: string
+        }
 
         try {
-            let importer = new CSVDataSource("tests/CSVImporterTest.csv",CSVCols);
+            let importer = new CSVDataSource(CSVColsXXL);
+            importer.open("tests/CSVImporterTest.csv");
+
             let gen = importer.generatePayload();
             gen.next();
         } catch (e) {
@@ -95,20 +109,30 @@ class CSVDataSourceTest {
 
     @test("should honor value escapes in csv files")
     parse_test_escapes() {
-      class CSVCols extends ImportPayload {
-        @CSVDataSource.column({index: 0})
-        a: string;
+        let importer = new CSVDataSource(CSVCols);
+        importer.open("tests/CSVImporterTestMean.csv");
+        let gen = importer.generatePayload();
+        var val = <CSVCols>gen.next().value;
+        expect(val.spalte_c).to.equal("c;d")
+    }
 
-        @CSVDataSource.column({index: 1})
-        b: string;
+    @test("should identify the index of the headlines")
+    parse_test_headlines() {
+        let importer = new CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true});
+        let gen = importer.generatePayload();
+        var val = <CSVCols>gen.next().value;
+        expect(importer.fields.spalte_a.index).to.equal(0);
+        expect(importer.fields.spalte_b.index).to.equal(1);
+        expect(importer.fields.spalte_c.index).to.equal(2);
+    }
 
-        @CSVDataSource.column({index: 2})
-        c: string;
-      }
-            let importer = new CSVDataSource("tests/CSVImporterTestMean.csv", CSVCols);
-            let gen = importer.generatePayload();
-            var val = <CSVCols>gen.next().value;
-            expect(val.c).to.equal("c;d")
-
+    @test("should return the correct values when searching for headlines")
+    parse_test_headlines_data() {
+        let importer = new CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true});
+        let gen = importer.generatePayload();
+        var val = <CSVCols>gen.next().value;
+        expect(val.spalte_a).to.equal("1");
     }
 }

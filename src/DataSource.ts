@@ -12,4 +12,12 @@ export class DataSource {
 
     return false;
   };
+
+  public close():void {
+
+  }
+
+  public open(ds: string, options:any = {}):void {
+
+  }
 }
