@@ -67,4 +67,23 @@ class CSVDataSourceTest {
         expect(second_row.spalte_b).to.equal("b");
         expect(second_row.spalte_c).to.equal("c");
     }
+
+    @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
+    parse_test_csv_file_rows_high_index() {
+        let cols = {
+            "spalte_a": {
+                index: 100
+            }
+        };
+
+        try {
+            let importer = new CSVDataSource("tests/CSVImporterTest.csv", cols);
+            let gen = importer.generatePayload();
+            gen.next();
+        } catch (e) {
+            if (e instanceof Error) {
+                expect(e.message).to.equal("Not enough columns in the File: tests/CSVImporterTest.csv");
+            }
+        }
+    }
 }

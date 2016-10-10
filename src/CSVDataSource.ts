@@ -40,7 +40,7 @@ export class CSVDataSource extends DataSource {
                 if (oneLine[this.cols[key]['index']]) {
                     newObject[key] = oneLine[this.cols[key]['index']];
                 } else {
-                    throw new Error("Error: Not enough columns in the File: " + this.filename);
+                    throw new Error("Not enough columns in the File: " + this.filename);
                 }
             }
 
