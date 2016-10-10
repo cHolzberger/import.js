@@ -6,7 +6,6 @@ import {DataSource} from "./DataSource";
 import {ImportPayload} from "./ImportPayload";
 
 import fs = require("fs");
-const readline = require('readline');
 
 export class CSVDataSource extends DataSource {
     private filename: string = "";
