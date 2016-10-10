@@ -7,11 +7,15 @@ import {ImportPayload} from "./ImportPayload";
 
 import fs = require("fs");
 
-export class CSVDataSource extends DataSource {
-    private filename: string = "";
-    private cols: any = {};
+export interface constructorof<T> {
+    new (): T;
+}
 
-    constructor(filename: string, cols: any) {
+export class CSVDataSource<T extends ImportPayload> extends DataSource {
+    private filename: string = "";
+    private payloadClass: constructorof<T>;
+
+    constructor(filename: string,ctor: constructorof<T>) {
         super();
         try {
             var stats = fs.statSync(filename);
@@ -22,22 +26,21 @@ export class CSVDataSource extends DataSource {
         if (!stats.isFile()) {
             throw new Error("File not found: " + filename);
         }
-
+        this.payloadClass = ctor;
         this.filename = filename;
-        this.cols = cols;
     }
 
-    public *generatePayload(): IterableIterator<ImportPayload> {
+    public *generatePayload(): IterableIterator<T> {
         let lines = fs.readFileSync(this.filename).toString().split("\n");
 
         for (let i = 0; i < lines.length; i++) {
-            let newObject: any = {};
+            let newObject:any = new this.payloadClass();
 
             let oneLine = lines[i].split(";");
 
-            for (let key in this.cols) {
-                if (oneLine[this.cols[key]['index']]) {
-                    newObject[key] = oneLine[this.cols[key]['index']];
+            for (let key in newObject.fields) {
+                if (oneLine[newObject.fields[key]['index']]) {
+                    newObject[key] = oneLine[newObject.fields[key]['index']];
                 } else {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
@@ -48,8 +51,13 @@ export class CSVDataSource extends DataSource {
     }
 
   // decorators
-  public static index(index:number) {
-    return index;
+  public static column(target: ImportPayload, propertyKey: string) {
+  }
+
+  public static index(i:number) {
+    return function(target: ImportPayload, propertyKey: string) {
+        target.setField(propertyKey,"index", i);
+    }
   }
 
 }
