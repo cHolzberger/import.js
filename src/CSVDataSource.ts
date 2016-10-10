@@ -4,6 +4,7 @@
 
 import {DataSource} from "./DataSource";
 import {ImportPayload} from "./ImportPayload";
+var parse = require('csv-parse/lib/sync');
 
 import fs = require("fs");
 
@@ -31,33 +32,32 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
     }
 
     public *generatePayload(): IterableIterator<T> {
-        let lines = fs.readFileSync(this.filename).toString().split("\n");
+        let content = fs.readFileSync(this.filename);
+        var parsed: any = parse(content, {
+                delimiter: ";"
+            });
 
-        for (let i = 0; i < lines.length; i++) {
-            let newObject:any = new this.payloadClass();
+            yield* parsed.map((oneLine:string[]) => {
+              let newObject:any = new this.payloadClass();
+              for (let key in newObject.fields) {
+                var idx = newObject.fields[key]['index'];
+                  if (oneLine[idx]) {
+                      newObject[key] = oneLine[idx];
+                  } else {
+                      throw new Error("Not enough columns in the File: " + this.filename);
+                  }
 
-            let oneLine = lines[i].split(";");
-
-            for (let key in newObject.fields) {
-                if (oneLine[newObject.fields[key]['index']]) {
-                    newObject[key] = oneLine[newObject.fields[key]['index']];
-                } else {
-                    throw new Error("Not enough columns in the File: " + this.filename);
-                }
-            }
-
-            yield newObject;
-        }
+              }
+              return newObject;
+            });
     }
 
   // decorators
-  public static column(target: ImportPayload, propertyKey: string) {
-  }
+  public static column(info: {index: number}) {
+    return function (target: ImportPayload, propertyKey: string) {
+      target.addField(propertyKey);
+      target.setField(propertyKey,"index", info.index);
 
-  public static index(i:number) {
-    return function(target: ImportPayload, propertyKey: string) {
-        target.setField(propertyKey,"index", i);
     }
   }
-
 }

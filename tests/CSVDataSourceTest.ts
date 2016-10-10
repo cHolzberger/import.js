@@ -9,8 +9,7 @@ class CSVDataSourceTest {
     @test("should know about its fields")
     test_annotations () {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(0)
+        @CSVDataSource.column({index:0})
         spalte_a: string
       }
       let x = new CSVCols();
@@ -22,8 +21,7 @@ class CSVDataSourceTest {
     @test("should parse the test csv file")
     parse_test_csv_file() {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(0)
+        @CSVDataSource.column({index: 0})
         spalte_a: string
       }
 
@@ -37,8 +35,7 @@ class CSVDataSourceTest {
     @test("should throw an exception if it cant find the file")
     parse_demo_csv() {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(0)
+        @CSVDataSource.column({index: 0})
         spalte_a: string
       }
 
@@ -54,16 +51,13 @@ class CSVDataSourceTest {
     @test("should parse the test csv file according to a col definition")
     parse_test_csv_file_rows() {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(0)
+        @CSVDataSource.column({index: 0})
         spalte_a: string
 
-        @CSVDataSource.column
-        @CSVDataSource.index(1)
+        @CSVDataSource.column({index: 1})
         spalte_b: string
 
-        @CSVDataSource.column
-        @CSVDataSource.index(2)
+        @CSVDataSource.column({index: 2})
         spalte_c: string
       }
 
@@ -84,8 +78,7 @@ class CSVDataSourceTest {
     @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
     parse_test_csv_file_rows_high_index() {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(100)
+        @CSVDataSource.column({index: 100})
         spalte_a: string
       }
 
@@ -100,19 +93,16 @@ class CSVDataSourceTest {
         }
     }
 
-    @test("should value escapes in csv files")
+    @test("should honor value escapes in csv files")
     parse_test_escapes() {
       class CSVCols extends ImportPayload {
-        @CSVDataSource.column
-        @CSVDataSource.index(0)
+        @CSVDataSource.column({index: 0})
         a: string;
 
-        @CSVDataSource.column
-        @CSVDataSource.index(1)
+        @CSVDataSource.column({index: 1})
         b: string;
 
-        @CSVDataSource.column
-        @CSVDataSource.index(2)
+        @CSVDataSource.column({index: 2})
         c: string;
       }
             let importer = new CSVDataSource("tests/CSVImporterTestMean.csv", CSVCols);
