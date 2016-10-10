@@ -3,6 +3,8 @@ Importer for CSV Files
 */
 
 import {DataSource} from "./DataSource";
+import {ImportPayload} from "./ImportPayload";
+
 import fs = require("fs");
 
 export class CSVDataSource extends DataSource {
@@ -18,6 +20,10 @@ export class CSVDataSource extends DataSource {
     if ( ! stats.isFile() ) {
       throw new Error("File not found: " + filename);
     }
+  }
+
+  public *generatePayload():IterableIterator<ImportPayload> {
+
   }
 
 }
