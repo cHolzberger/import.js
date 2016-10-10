@@ -18,6 +18,6 @@
 		"src/ImportJob.ts",
 		"src/ImportPayload.ts",
 		"src/ImportWorkflow.ts",
-		"tests/test.ts"
+		"tests/CSVDataSourceTest.ts"
 	]
 }

@@ -13,9 +13,11 @@
     "autodts": "0.0.6"
   },
   "devDependencies": {
+    "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.45",
     "autodts": "0.0.6",
+    "chai": "^3.5.0",
     "jasmine": "^2.5.2",
     "mocha": "^3.1.1",
     "mocha-typescript": "^1.0.10"

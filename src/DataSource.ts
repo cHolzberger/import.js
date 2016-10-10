@@ -4,9 +4,12 @@
  * maps input data to objects of strings
  */
 
+import {ImportPayload} from "./ImportPayload";
 
-class DataSource {
-  *generatePayload():IterableIterator<boolean> {
-    yield true;
+export class DataSource {
+  public *generatePayload():IterableIterator<ImportPayload> {
+    yield null;
+
+    return false;
   };
 }

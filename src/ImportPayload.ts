@@ -2,6 +2,6 @@
  * generic payload for importer
  */
 
-interface ImportPayload {
-  
+export interface ImportPayload {
+
 }
