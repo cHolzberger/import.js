@@ -47,4 +47,9 @@ export class CSVDataSource extends DataSource {
         }
     }
 
+  // decorators
+  public static index(index:number) {
+    return index;
+  }
+
 }

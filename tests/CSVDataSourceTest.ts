@@ -1,7 +1,8 @@
 import {suite, test, slow, timeout, skip, only} from "mocha-typescript";
 import {expect} from 'chai';
 
-import {CSVDataSource} from "../src/CSVDataSource";
+import { CSVDataSource } from "../src/CSVDataSource";
+import { ImportPayload } from "../src/ImportPayload";
 
 @suite("A CSVDataSource")
 class CSVDataSourceTest {
@@ -41,6 +42,11 @@ class CSVDataSourceTest {
 
     @test("should parse the test csv file according to a col definition")
     parse_test_csv_file_rows() {
+      class CSVCols implements ImportPayload {
+        @CSVDataSource.index(0)
+        spalte_a: string
+      }
+
         let cols = {
             "spalte_a": {
                 index: 0
