@@ -7,16 +7,19 @@
     "preinstall": "npm install autodts",
     "postinstall": "autodts link",
     "prepublish": "tsc && autodts generate",
-    "test": "node tests/test.js"
+    "test": "tsc && mocha ./dist/tests"
   },
   "dependencies": {
     "autodts": "0.0.6"
   },
   "devDependencies": {
     "@types/jasmine": "^2.5.35",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.45",
     "autodts": "0.0.6",
-    "jasmine": "^2.5.2"
+    "jasmine": "^2.5.2",
+    "mocha": "^3.1.1",
+    "mocha-typescript": "^1.0.10"
   },
   "repository": {
     "type": "git",

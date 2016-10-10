@@ -4,9 +4,9 @@
  * maps input data to objects of strings
  */
 
-function *generator ( ) {
 
-}
 class DataSource {
-  *generatePayload():ImportPayload {};
+  *generatePayload():IterableIterator<boolean> {
+    yield true;
+  };
 }

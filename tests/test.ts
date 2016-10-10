@@ -1,3 +1,9 @@
-import Jasmine from 'node_modules/jasmine/bin/jasmine';
+import { suite, test, slow, timeout, skip, only } from "mocha-typescript";
 
-j.describe();
+@suite("mocha typescript")
+class Basic {
+
+    @test("should pass when asserts are fine")
+    asserts_pass() {
+    }
+  }
