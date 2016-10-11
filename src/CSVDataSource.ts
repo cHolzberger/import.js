@@ -19,14 +19,16 @@ export interface CSVDataSourceOptions {
 
 export interface CSVDataSourceColumnInfo {
     index: number,
-    required?: boolean
+    required?: boolean,
+    converter?: (x: string) => any;
 }
 
 export interface CSVDataSourceHeadlineColumnInfo {
     regex: RegExp,
     required?: boolean
     index?: number,
-    found?: boolean
+    found?: boolean,
+    converter?: (x: string) => any;
 }
 
 export class CSVDataSource<T extends ImportPayload> extends DataSource {
@@ -41,7 +43,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         this.payloadClass = ctor;
     }
 
-    public open(filename: string, options: CSVDataSourceOptions = { "delimiter": ";", hasHeadline: false }): void {
+    public open(filename: string, options: CSVDataSourceOptions = {"delimiter": ";", hasHeadline: false}): void {
         try {
             var stats = fs.statSync(filename);
         } catch (e) {
@@ -59,40 +61,41 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         this.parseCsv();
     }
 
-    protected parseCsv () {
-      this.parsed = parse(this.content, {
-          delimiter: this.options.delimiter
-      });
+    protected parseCsv() {
+        this.parsed = parse(this.content, {
+            delimiter: this.options.delimiter
+        });
 
-      if (this.options.hasHeadline) {
-          var hl: any = this.parsed.shift();
-          var c:any = this.payloadClass;
-          var col:any = c.getFields();
+        if (this.options.hasHeadline) {
+            var hl: any = this.parsed.shift();
+            var c: any = this.payloadClass;
+            var col: any = c.getFields();
 
-          hl.forEach(function(rowLabel:string, index:number) {
-              for (var colIdx in col) {
-                  var colInfo = col[colIdx];
-                  if (colInfo.found) continue;
-                  if (rowLabel.match(colInfo.regex)) {
-                      colInfo.index = index;
-                      colInfo.found = true;
-                      break;
-                  }
-              }
-          });
+            hl.forEach(function (rowLabel: string, index: number) {
+                for (var colIdx in col) {
+                    var colInfo = col[colIdx];
+                    if (colInfo.found) continue;
+                    if (rowLabel.match(colInfo.regex)) {
+                        colInfo.index = index;
+                        colInfo.found = true;
+                        break;
+                    }
+                }
+            });
 
-          var allRequiredFound = true;
-          for (var idx in col) {
-              var item = col[idx];
-              if (item.required) {
-                  allRequiredFound = allRequiredFound && item.found;
-                  if (!item.found) {
-                      console.error("Not all required fields found in xls; Missing: " + idx);
-                      return;
-                  }
-              }
-          };
-      }
+            var allRequiredFound = true;
+            for (var idx in col) {
+                var item = col[idx];
+                if (item.required) {
+                    allRequiredFound = allRequiredFound && item.found;
+                    if (!item.found) {
+                        console.error("Not all required fields found in xls; Missing: " + idx);
+                        return;
+                    }
+                }
+            }
+            ;
+        }
     }
 
     public *generatePayload(): IterableIterator<T> {
@@ -102,11 +105,14 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
             for (let key in this.fields) {
                 var idx = this.fields[key]['index'];
                 if (oneLine[idx]) {
-                    newObject[key] = oneLine[idx];
-                } else {
+                    if (this.fields[key].converter) {
+                        newObject[key] = this.fields[key].converter(oneLine[idx]);
+                    } else {
+                        newObject[key] = oneLine[idx];
+                    }
+                } else if (this.fields[key]['index'].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
-
             }
             return newObject;
         });
@@ -120,16 +126,21 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
     // decorators
 
     public static indexColumn(info: CSVDataSourceColumnInfo) {
-        return function(target: any, propertyKey: string) {
+        return function (target: any, propertyKey: string) {
             target.constructor.addField(propertyKey);
             target.constructor.setField(propertyKey, "index", info.index);
+            target.constructor.setField(propertyKey, "converter", info.converter);
+            target.constructor.setField(propertyKey, "required", info.required);
+
         }
     }
 
     public static regexColumn(info: CSVDataSourceHeadlineColumnInfo) {
-        return function(target: any, propertyKey: string) {
+        return function (target: any, propertyKey: string) {
             target.constructor.addField(propertyKey);
             target.constructor.setField(propertyKey, "regex", info.regex);
+            target.constructor.setField(propertyKey, "converter", info.converter);
+            target.constructor.setField(propertyKey, "required", info.required);
         }
     }
 }

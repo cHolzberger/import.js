@@ -14,12 +14,14 @@ export interface CSVDataSourceOptions {
 export interface CSVDataSourceColumnInfo {
     index: number;
     required?: boolean;
+    converter?: (x: string) => any;
 }
 export interface CSVDataSourceHeadlineColumnInfo {
     regex: RegExp;
     required?: boolean;
     index?: number;
     found?: boolean;
+    converter?: (x: string) => any;
 }
 export declare class CSVDataSource<T extends ImportPayload> extends DataSource {
     protected filename: string;

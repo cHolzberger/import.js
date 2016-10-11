@@ -67,9 +67,14 @@ class CSVDataSource extends DataSource_1.DataSource {
             for (let key in this.fields) {
                 var idx = this.fields[key]['index'];
                 if (oneLine[idx]) {
-                    newObject[key] = oneLine[idx];
+                    if (this.fields[key].converter) {
+                        newObject[key] = this.fields[key].converter(oneLine[idx]);
+                    }
+                    else {
+                        newObject[key] = oneLine[idx];
+                    }
                 }
-                else {
+                else if (this.fields[key]['index'].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
             }
@@ -85,12 +90,16 @@ class CSVDataSource extends DataSource_1.DataSource {
         return function (target, propertyKey) {
             target.constructor.addField(propertyKey);
             target.constructor.setField(propertyKey, "index", info.index);
+            target.constructor.setField(propertyKey, "converter", info.converter);
+            target.constructor.setField(propertyKey, "required", info.required);
         };
     }
     static regexColumn(info) {
         return function (target, propertyKey) {
             target.constructor.addField(propertyKey);
             target.constructor.setField(propertyKey, "regex", info.regex);
+            target.constructor.setField(propertyKey, "converter", info.converter);
+            target.constructor.setField(propertyKey, "required", info.required);
         };
     }
 }

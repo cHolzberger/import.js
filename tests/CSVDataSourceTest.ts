@@ -1,5 +1,5 @@
 import {suite, test, slow, timeout, skip, only} from "mocha-typescript";
-import {expect} from 'chai';
+import {expect, assert} from 'chai';
 
 import { CSVDataSource } from "../src/CSVDataSource";
 import { ImportPayload } from "../src/ImportPayload";
@@ -24,6 +24,11 @@ class CSVHeadlineCols extends ImportPayload {
 
     @CSVDataSource.regexColumn({ regex: /COLC/ })
     spalte_c: string
+}
+
+class CSVHeadlineColsNumber extends ImportPayload {
+    @CSVDataSource.indexColumn({index: 0,  converter: parseInt })
+    spalte_a: number
 }
 
 @suite("A CSVDataSource")
@@ -87,10 +92,10 @@ class CSVDataSourceTest {
         expect(second_row.spalte_c).to.equal("c");
     }
 
-    @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
+    @test("should throw an error because the col definition accesses an index that does not exist in the CSV File and is required")
     parse_test_csv_file_rows_high_index() {
         class CSVColsXXL extends ImportPayload {
-            @CSVDataSource.indexColumn({ index: 100 })
+            @CSVDataSource.indexColumn({ index: 100, required: true })
             spalte_a: string
         }
 
@@ -103,6 +108,26 @@ class CSVDataSourceTest {
         } catch (e) {
             if (e instanceof Error) {
                 expect(e.message).to.equal("Not enough columns in the File: tests/CSVImporterTest.csv");
+            }
+        }
+    }
+
+    @test("should throw NO error because the col definition accesses an index that does not exist in the CSV File and is not required")
+    parse_test_csv_file_rows_high_index_not_required() {
+        class CSVColsXXL extends ImportPayload {
+            @CSVDataSource.indexColumn({ index: 100, required: false })
+            spalte_a: string
+        }
+
+        try {
+            let importer = new CSVDataSource(CSVColsXXL);
+            importer.open("tests/CSVImporterTest.csv");
+
+            let gen = importer.generatePayload();
+            gen.next();
+        } catch (e) {
+            if (e instanceof Error) {
+                assert.fail("Failed although not required field");
             }
         }
     }
@@ -126,6 +151,16 @@ class CSVDataSourceTest {
         expect(importer.fields.spalte_b.index).to.equal(1);
         expect(importer.fields.spalte_c.index).to.equal(2);
     }
+
+    @test("should convert types according to definition")
+    parse_test_converter() {
+        let importer = new CSVDataSource(CSVHeadlineColsNumber);
+        importer.open("tests/CSVImporterTestNumber.csv");
+        let gen = importer.generatePayload();
+        var val = <CSVHeadlineColsNumber>gen.next().value;
+        expect(val.spalte_a).to.equal(1);
+    }
+
 
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {
