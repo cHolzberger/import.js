@@ -27,6 +27,4 @@ export abstract class ImportPayload {
       var c: any = this;
       return c._fields;
     }
-
-    
 }
