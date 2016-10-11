@@ -26,6 +26,11 @@ class CSVHeadlineCols extends ImportPayload {
     spalte_c: string
 }
 
+class CSVHeadlineColsNumber extends ImportPayload {
+    @CSVDataSource.indexColumn({index: 0,  converter: parseInt })
+    spalte_a: number
+}
+
 @suite("A CSVDataSource")
 class CSVDataSourceTest {
     @test("should know about its fields")
@@ -126,6 +131,16 @@ class CSVDataSourceTest {
         expect(importer.fields.spalte_b.index).to.equal(1);
         expect(importer.fields.spalte_c.index).to.equal(2);
     }
+
+    @test("should convert types according to definition")
+    parse_test_converter() {
+        let importer = new CSVDataSource(CSVHeadlineColsNumber);
+        importer.open("tests/CSVImporterTestNumber.csv");
+        let gen = importer.generatePayload();
+        var val = <CSVHeadlineColsNumber>gen.next().value;
+        expect(val.spalte_a).to.equal(1);
+    }
+
 
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {

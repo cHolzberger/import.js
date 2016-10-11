@@ -31,6 +31,11 @@ __decorate([
 __decorate([
     CSVDataSource_1.CSVDataSource.regexColumn({ regex: /COLC/ })
 ], CSVHeadlineCols.prototype, "spalte_c", void 0);
+class CSVHeadlineColsNumber extends ImportPayload_1.ImportPayload {
+}
+__decorate([
+    CSVDataSource_1.CSVDataSource.indexColumn({ index: 0, converter: parseInt })
+], CSVHeadlineColsNumber.prototype, "spalte_a", void 0);
 let CSVDataSourceTest = class CSVDataSourceTest {
     test_annotations() {
         class CSVColsTest extends ImportPayload_1.ImportPayload {
@@ -114,6 +119,13 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         chai_1.expect(importer.fields.spalte_b.index).to.equal(1);
         chai_1.expect(importer.fields.spalte_c.index).to.equal(2);
     }
+    parse_test_converter() {
+        let importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineColsNumber);
+        importer.open("tests/CSVImporterTestNumber.csv");
+        let gen = importer.generatePayload();
+        var val = gen.next().value;
+        chai_1.expect(val.spalte_a).to.equal(1);
+    }
     parse_test_headlines_data() {
         let importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
         importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true });
@@ -143,6 +155,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should identify the index of the headlines")
 ], CSVDataSourceTest.prototype, "parse_test_headlines", null);
+__decorate([
+    mocha_typescript_1.test("should convert types according to definition")
+], CSVDataSourceTest.prototype, "parse_test_converter", null);
 __decorate([
     mocha_typescript_1.test("should return the correct values when searching for headlines")
 ], CSVDataSourceTest.prototype, "parse_test_headlines_data", null);
