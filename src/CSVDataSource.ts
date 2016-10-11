@@ -110,10 +110,9 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
                     } else {
                         newObject[key] = oneLine[idx];
                     }
-                } else {
+                } else if (this.fields[key]['index'].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
-
             }
             return newObject;
         });

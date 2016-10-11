@@ -67,17 +67,14 @@ class CSVDataSource extends DataSource_1.DataSource {
             for (let key in this.fields) {
                 var idx = this.fields[key]['index'];
                 if (oneLine[idx]) {
-                    console.log(this.fields[key].converter);
                     if (this.fields[key].converter) {
-                        console.log("converting");
                         newObject[key] = this.fields[key].converter(oneLine[idx]);
                     }
                     else {
-                        console.log("not converting");
                         newObject[key] = oneLine[idx];
                     }
                 }
-                else {
+                else if (this.fields[key]['index'].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
             }

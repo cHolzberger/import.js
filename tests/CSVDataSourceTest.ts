@@ -1,5 +1,5 @@
 import {suite, test, slow, timeout, skip, only} from "mocha-typescript";
-import {expect} from 'chai';
+import {expect, assert} from 'chai';
 
 import { CSVDataSource } from "../src/CSVDataSource";
 import { ImportPayload } from "../src/ImportPayload";
@@ -92,10 +92,10 @@ class CSVDataSourceTest {
         expect(second_row.spalte_c).to.equal("c");
     }
 
-    @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
+    @test("should throw an error because the col definition accesses an index that does not exist in the CSV File and is required")
     parse_test_csv_file_rows_high_index() {
         class CSVColsXXL extends ImportPayload {
-            @CSVDataSource.indexColumn({ index: 100 })
+            @CSVDataSource.indexColumn({ index: 100, required: true })
             spalte_a: string
         }
 
@@ -108,6 +108,26 @@ class CSVDataSourceTest {
         } catch (e) {
             if (e instanceof Error) {
                 expect(e.message).to.equal("Not enough columns in the File: tests/CSVImporterTest.csv");
+            }
+        }
+    }
+
+    @test("should throw NO error because the col definition accesses an index that does not exist in the CSV File and is not required")
+    parse_test_csv_file_rows_high_index_not_required() {
+        class CSVColsXXL extends ImportPayload {
+            @CSVDataSource.indexColumn({ index: 100, required: false })
+            spalte_a: string
+        }
+
+        try {
+            let importer = new CSVDataSource(CSVColsXXL);
+            importer.open("tests/CSVImporterTest.csv");
+
+            let gen = importer.generatePayload();
+            gen.next();
+        } catch (e) {
+            if (e instanceof Error) {
+                assert.fail("Failed although not required field");
             }
         }
     }
