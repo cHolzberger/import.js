@@ -15,9 +15,14 @@
 	},
 	"files": [
 		"src/DataSource.ts",
-		"src/ImportJob.ts",
 		"src/ImportPayload.ts",
 		"src/ImportWorkflow.ts",
-		"tests/CSVDataSourceTest.ts"
+		"src/XLSDataSource.ts",
+		"src/CSVDataSource.ts",
+		"tests/CSVDataSourceTest.ts",
+		"tests/XLSDataSourceTest.ts",
+
+		"tests/ImportWorkflowTest.ts"
+
 	]
 }

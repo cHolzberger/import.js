@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "autodts": "0.0.6",
-    "csv-parse": "^1.1.7"
+    "csv-parse": "^1.1.7",
+    "xlsx": "^0.8.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.45",
+    "@types/xlsx": "0.0.30",
     "autodts": "0.0.6",
     "chai": "^3.5.0",
     "jasmine": "^2.5.2",

@@ -30,10 +30,10 @@ export interface CSVDataSourceHeadlineColumnInfo {
 }
 
 export class CSVDataSource<T extends ImportPayload> extends DataSource {
-    private filename: string = "";
+    protected filename: string = "";
     private payloadClass: constructorof<T>;
-    private content: Buffer;
-    private options: any;
+    protected content: Buffer;
+    protected options: any;
     private parsed: any;
 
     constructor(ctor: constructorof<T>) {
@@ -56,39 +56,43 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         this.content = fs.readFileSync(this.filename);
         this.options = options;
 
-        this.parsed = parse(this.content, {
-            delimiter: options.delimiter
-        });
+        this.parseCsv();
+    }
 
-        if (this.options.hasHeadline) {
-            var hl: any = this.parsed.shift();
-            var c:any = this.payloadClass;
-            var col:any = c.getFields();
+    protected parseCsv () {
+      this.parsed = parse(this.content, {
+          delimiter: this.options.delimiter
+      });
 
-            hl.forEach(function(rowLabel:string, index:number) {
-                for (var colIdx in col) {
-                    var colInfo = col[colIdx];
-                    if (colInfo.found) continue;
-                    if (rowLabel.match(colInfo.regex)) {
-                        colInfo.index = index;
-                        colInfo.found = true;
-                        break;
-                    }
-                }
-            });
+      if (this.options.hasHeadline) {
+          var hl: any = this.parsed.shift();
+          var c:any = this.payloadClass;
+          var col:any = c.getFields();
 
-            var allRequiredFound = true;
-            for (var idx in col) {
-                var item = col[idx];
-                if (item.required) {
-                    allRequiredFound = allRequiredFound && item.found;
-                    if (!item.found) {
-                        console.error("Not all required fields found in xls; Missing: " + idx);
-                        return;
-                    }
-                }
-            };
-        }
+          hl.forEach(function(rowLabel:string, index:number) {
+              for (var colIdx in col) {
+                  var colInfo = col[colIdx];
+                  if (colInfo.found) continue;
+                  if (rowLabel.match(colInfo.regex)) {
+                      colInfo.index = index;
+                      colInfo.found = true;
+                      break;
+                  }
+              }
+          });
+
+          var allRequiredFound = true;
+          for (var idx in col) {
+              var item = col[idx];
+              if (item.required) {
+                  allRequiredFound = allRequiredFound && item.found;
+                  if (!item.found) {
+                      console.error("Not all required fields found in xls; Missing: " + idx);
+                      return;
+                  }
+              }
+          };
+      }
     }
 
     public *generatePayload(): IterableIterator<T> {
@@ -115,7 +119,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
 
     // decorators
 
-    public static column(info: CSVDataSourceColumnInfo) {
+    public static indexColumn(info: CSVDataSourceColumnInfo) {
         return function(target: any, propertyKey: string) {
             target.constructor.addField(propertyKey);
             target.constructor.setField(propertyKey, "index", info.index);
