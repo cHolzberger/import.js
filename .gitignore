@@ -359,7 +359,6 @@ Session.vim
 *~
 
 ### Std. Grunt ###
-dist/
 .imdone
 
 # Fixtures for now
