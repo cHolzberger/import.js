@@ -5,13 +5,13 @@ import { CSVDataSource } from "../src/CSVDataSource";
 import { ImportPayload } from "../src/ImportPayload";
 
 class CSVCols extends ImportPayload {
-    @CSVDataSource.column({ index: 0 })
+    @CSVDataSource.indexColumn({ index: 0 })
     spalte_a: string
 
-    @CSVDataSource.column({ index: 1 })
+    @CSVDataSource.indexColumn({ index: 1 })
     spalte_b: string
 
-    @CSVDataSource.column({ index: 2 })
+    @CSVDataSource.indexColumn({ index: 2 })
     spalte_c: string
 }
 
@@ -31,13 +31,13 @@ class CSVDataSourceTest {
     @test("should know about its fields")
     test_annotations() {
         class CSVColsTest extends ImportPayload {
-            @CSVDataSource.column({ index: 0 })
+            @CSVDataSource.indexColumn({ index: 0 })
             spalte_a: string
 
-            @CSVDataSource.column({ index: 1 })
+            @CSVDataSource.indexColumn({ index: 1 })
             spalte_b: string
 
-            @CSVDataSource.column({ index: 2 })
+            @CSVDataSource.indexColumn({ index: 2 })
             spalte_c: string
         }
         let x = new CSVColsTest();
@@ -90,7 +90,7 @@ class CSVDataSourceTest {
     @test("should throw an error because the col definition accesses an index that does not exist in the CSV File")
     parse_test_csv_file_rows_high_index() {
         class CSVColsXXL extends ImportPayload {
-            @CSVDataSource.column({ index: 100 })
+            @CSVDataSource.indexColumn({ index: 100 })
             spalte_a: string
         }
 
