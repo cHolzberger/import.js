@@ -10,13 +10,15 @@
 import {ImportPayload} from "./ImportPayload";
 
 export interface WorkflowEventHandler<T> {
-    preprocess?(data: T): T;
-    import?(data: T): T;
-    postprocess?(data: T): T;
+    preprocess?(data: T): Promise<T>;
+    import?(data: T): Promise<T>;
+    postprocess?(data: T): Promise<T>;
 }
 
-export class ImportWorkflow<T>  {
-    private handlers: WorkflowEventHandler<T>[] = [];
+
+
+export class ImportWorkflow<T> {
+    private handlers: WorkflowEventHandler<T> [] = [];
 
     public on(handler: WorkflowEventHandler<T>) {
         this.handlers.push(handler);
@@ -26,28 +28,40 @@ export class ImportWorkflow<T>  {
         this.handlers = this.handlers.filter(h => h !== handler);
     }
 
-    public run(gen: IterableIterator<T>) {
+    public async run(gen: IterableIterator<T>):Promise<T[]> {
+        var results:T[] = [];
         while (true) {
             var value = gen.next();
+            var i = 0;
             if (value.done) {
-              break;
+                break;
             }
 
-            var payload: ImportPayload = value.value;
+            var payload: T = value.value;
+
             // preprocess
-            payload = this.handlers.reduce((value: T, handler: WorkflowEventHandler<T>): ImportPayload => {
-                return handler.preprocess ? handler.preprocess(value) : value;
-            }, payload);
+            for (i=0; i<this.handlers.length; i++) {
+                let handler = this.handlers[i];
+                payload = handler.preprocess ? await handler.preprocess(payload) : payload;
+            }
+
 
             // import
-            payload = this.handlers.reduce((value: T, handler: WorkflowEventHandler<T>): ImportPayload => {
-                return handler.import ? handler.import(value) : value;
-            }, payload);
+            for (i=0; i<this.handlers.length; i++) {
+                let handler = this.handlers[i];
+
+                payload = handler.import ? await handler.import(payload) : payload;
+            }
 
             // postprocess
-            payload = this.handlers.reduce((value: T, handler: WorkflowEventHandler<T>): ImportPayload => {
-                return handler.postprocess ? handler.postprocess(value) : value;
-            }, payload);
-         }
+            for (i=0; i<this.handlers.length; i++) {
+                let handler = this.handlers[i];
+
+                payload = handler.postprocess ? await handler.postprocess(payload) : payload;
+            }
+            results.push(payload);
+
+        }
+        return results;
     }
 }

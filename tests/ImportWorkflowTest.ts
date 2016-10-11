@@ -18,7 +18,7 @@ function* testGeneratorOneValue():IterableIterator<string> {
 class CSVDataSourceTest {
     @test("should call import")
     test_run_import() {
-      var handler:WorkflowEventHandler<string> = {"import": (data:string):string => { expect(data).to.equal("1"); return "new"}};
+      var handler:WorkflowEventHandler<string> = {"import": (data:string):Promise<string> => { expect(data).to.equal("1"); return Promise.resolve("new")}};
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
       worker.on(handler);
@@ -28,7 +28,7 @@ class CSVDataSourceTest {
 
     @test("should call preprocess")
     test_run_preprocess() {
-      var handler:WorkflowEventHandler<string> = {"preprocess": (data:string):string => { expect(data).to.equal("1"); return "new"}};
+      var handler:WorkflowEventHandler<string> = {"preprocess": (data:string):Promise<string> => { expect(data).to.equal("1"); return Promise.resolve("new")}};
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
       worker.on(handler);
@@ -38,7 +38,7 @@ class CSVDataSourceTest {
 
     @test("should call postprocess")
     test_run_postprocess() {
-      var handler:WorkflowEventHandler<string> = {"postprocess": (data:string):string => { expect(data).to.equal("1"); return "new"}};
+      var handler:WorkflowEventHandler<string> = {"postprocess": (data:string):Promise<string> => { expect(data).to.equal("1"); return Promise.resolve("new")}};
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
       worker.on(handler);
@@ -51,9 +51,9 @@ class CSVDataSourceTest {
       var count = 0;
 
       var handler:WorkflowEventHandler<string> = {
-        "preprocess": (data:string):string => { expect(count).to.equal(0); count++; return "new"},
-        "import": (data:string):string => { expect(count).to.equal(1); count++; return "new"},
-        "postprocess": (data:string):string => { expect(count).to.equal(2); return "new"}
+        "preprocess": (data:string):Promise<string> => { expect(count).to.equal(0); count++; return Promise.resolve("new")},
+        "import": (data:string):Promise<string> => { expect(count).to.equal(1); count++; return Promise.resolve("new")},
+        "postprocess": (data:string):Promise<string> => { expect(count).to.equal(2); return Promise.resolve("new")}
       };
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
@@ -67,9 +67,9 @@ class CSVDataSourceTest {
       var count = 0;
 
       var handler:WorkflowEventHandler<string> = {
-        "preprocess": (data:string):string => { expect(data).to.equal("1"); return "preprocess"},
-        "import": (data:string):string => { expect(data).to.equal("preprocess"); return "import"},
-        "postprocess": (data:string):string => { expect(data).to.equal("import"); return "new"}
+        "preprocess": (data:string):Promise<string> => { expect(data).to.equal("1"); return Promise.resolve("preprocess")},
+        "import": (data:string):Promise<string> => { expect(data).to.equal("preprocess"); return Promise.resolve("import")},
+        "postprocess": (data:string):Promise<string> => { expect(data).to.equal("import"); return Promise.resolve("new")}
       };
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
@@ -82,12 +82,13 @@ class CSVDataSourceTest {
       var count = 0;
 
       var handler:WorkflowEventHandler<string> = {
-        "import": (data:string):string => { count++; return "whatever";},
+        "import": (data:string):Promise<string> => { count++; return Promise.resolve("whatever");},
       };
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
       worker.on(handler);
-      worker.run(testGenerator());
-      expect(count).to.equal(2);
+      worker.run(testGenerator()).then(() => {
+            expect(count).to.equal(2);
+      });
     }
 }
