@@ -14,7 +14,8 @@ export interface constructorof<T> {
 
 export interface CSVDataSourceOptions {
     delimiter: string,
-    hasHeadline: boolean
+    hasHeadline: boolean,
+    strictMode: boolean
 }
 
 export interface CSVDataSourceColumnInfo {
@@ -43,7 +44,11 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         this.payloadClass = ctor;
     }
 
-    public open(filename: string, options: CSVDataSourceOptions = {"delimiter": ";", hasHeadline: false}): void {
+    public open(filename: string, options: CSVDataSourceOptions = {
+        "delimiter": ";",
+        hasHeadline: false,
+        strictMode: false
+    }): void {
         try {
             var stats = fs.statSync(filename);
         } catch (e) {
@@ -94,7 +99,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
                     }
                 }
             }
-            ;
+
         }
     }
 
@@ -111,7 +116,11 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
                         newObject[key] = oneLine[idx];
                     }
                 } else if (this.fields[key].required) {
-                    throw new Error("Not enough columns in the File: " + this.filename);
+                    if (this.options.strictMode) {
+                        throw new Error("Not enough columns in the File: " + this.filename);
+                    } else {
+                        continue; // ignore column
+                    }
                 }
             }
             return newObject;

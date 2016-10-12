@@ -102,7 +102,7 @@ class CSVDataSourceTest {
 
         try {
             let importer = new CSVDataSource(CSVColsXXL);
-            importer.open("tests/CSVImporterTest.csv");
+            importer.open("tests/CSVImporterTest.csv", {delimiter: ";", hasHeadline: false, strictMode: true});
 
             let gen = importer.generatePayload();
             gen.next();
@@ -113,6 +113,28 @@ class CSVDataSourceTest {
             }
         }
         expect(exeptionFired).to.equal(true);
+    }
+
+    @test("should throw NO error but ignore the row because the col definition accesses an index that does not exist in the CSV File and is required and strict mode is of")
+    parse_test_csv_file_rows_high_index_non_strict() {
+        var exeptionFired:boolean = false;
+        class CSVColsXXL extends ImportPayload {
+            @CSVDataSource.indexColumn({ index: 100, required: true })
+            spalte_a: string
+        }
+
+        try {
+            let importer = new CSVDataSource(CSVColsXXL);
+            importer.open("tests/CSVImporterTest.csv", {delimiter: ";", hasHeadline: false, strictMode: false});
+
+            let gen = importer.generatePayload();
+            gen.next();
+        } catch (e) {
+            if (e instanceof Error) {
+                exeptionFired = true;
+            }
+        }
+        expect(exeptionFired).to.equal(false);
     }
 
     @test("should throw NO error because the col definition accesses an index that does not exist in the CSV File and is not required")
@@ -147,7 +169,7 @@ class CSVDataSourceTest {
     @test("should identify the index of the headlines")
     parse_test_headlines() {
         let importer = new CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true});
+        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true, strictMode: true});
         let gen = importer.generatePayload();
         var val = <CSVCols>gen.next().value;
         expect(importer.fields.spalte_a.index).to.equal(0);
@@ -168,7 +190,7 @@ class CSVDataSourceTest {
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {
         let importer = new CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true});
+        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true, strictMode:true});
         let gen = importer.generatePayload();
         var val = <CSVCols>gen.next().value;
         expect(val.spalte_a).to.equal("1");

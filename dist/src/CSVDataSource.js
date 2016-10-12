@@ -11,7 +11,11 @@ class CSVDataSource extends DataSource_1.DataSource {
         this.filename = "";
         this.payloadClass = ctor;
     }
-    open(filename, options = { "delimiter": ";", hasHeadline: false }) {
+    open(filename, options = {
+            "delimiter": ";",
+            hasHeadline: false,
+            strictMode: false
+        }) {
         try {
             var stats = fs.statSync(filename);
         }
@@ -57,7 +61,6 @@ class CSVDataSource extends DataSource_1.DataSource {
                     }
                 }
             }
-            ;
         }
     }
     *generatePayload() {
@@ -75,7 +78,12 @@ class CSVDataSource extends DataSource_1.DataSource {
                     }
                 }
                 else if (this.fields[key].required) {
-                    throw new Error("Not enough columns in the File: " + this.filename);
+                    if (this.options.strictMode) {
+                        throw new Error("Not enough columns in the File: " + this.filename);
+                    }
+                    else {
+                        continue; // ignore column
+                    }
                 }
             }
             return newObject;
