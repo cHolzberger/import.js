@@ -107,6 +107,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         // FIXME: do this the streaming way
         for ( let oneLine of this.parsed) {
             let newObject: any = new this.payloadClass();
+            let skip:boolean = false;
             for (let key in this.fields) {
                 var idx = this.fields[key].index;
                 if (oneLine[idx]) {
@@ -119,11 +120,14 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
                     if (this.options.strictMode) {
                         throw new Error("Not enough columns in the File: " + this.filename);
                     } else {
-                        continue; // ignore column
+                        skip = true;
+                        break; // ignore column
                     }
                 }
             }
-            yield newObject;
+            if ( !skip ) {
+                yield newObject;
+            }
         }
     }
 
