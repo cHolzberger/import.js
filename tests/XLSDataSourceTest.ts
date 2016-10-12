@@ -1,28 +1,28 @@
 import {suite, test, slow, timeout, skip, only} from "mocha-typescript";
 import {expect} from 'chai';
 
-import { XLSDataSource } from "../src/XLSDataSource";
-import { ImportPayload } from "../src/ImportPayload";
+import {XLSDataSource} from "../src/XLSDataSource";
+import {ImportPayload} from "../src/ImportPayload";
 
 class XLSCols extends ImportPayload {
-    @XLSDataSource.indexColumn({ index: 0 })
+    @XLSDataSource.indexColumn({index: 0})
     spalte_a: string
 
-    @XLSDataSource.indexColumn({ index: 1 })
+    @XLSDataSource.indexColumn({index: 1})
     spalte_b: string
 
-    @XLSDataSource.indexColumn({ index: 2 })
+    @XLSDataSource.indexColumn({index: 2})
     spalte_c: string
 }
 
 class XLSHeadlineCols extends ImportPayload {
-    @XLSDataSource.regexColumn({ regex: /COLA/ })
+    @XLSDataSource.regexColumn({regex: /COLA/})
     spalte_a: string
 
-    @XLSDataSource.regexColumn({ regex: /COLB/ })
+    @XLSDataSource.regexColumn({regex: /COLB/})
     spalte_b: string
 
-    @XLSDataSource.regexColumn({ regex: /COLC/ })
+    @XLSDataSource.regexColumn({regex: /COLC/})
     spalte_c: string
 }
 
@@ -31,13 +31,13 @@ class XLSDataSourceTest {
     @test("should know about its fields")
     test_annotations() {
         class XLSColsTest extends ImportPayload {
-            @XLSDataSource.indexColumn({ index: 0 })
+            @XLSDataSource.indexColumn({index: 0})
             spalte_a: string
 
-            @XLSDataSource.indexColumn({ index: 1 })
+            @XLSDataSource.indexColumn({index: 1})
             spalte_b: string
 
-            @XLSDataSource.indexColumn({ index: 2 })
+            @XLSDataSource.indexColumn({index: 2})
             spalte_c: string
         }
         let x = new XLSColsTest();
@@ -90,7 +90,7 @@ class XLSDataSourceTest {
     @test("should throw an error because the col definition accesses an index that does not exist in the XLS File")
     parse_test_XLS_file_rows_high_index() {
         class XLSColsXXL extends ImportPayload {
-            @XLSDataSource.indexColumn({ index: 100 })
+            @XLSDataSource.indexColumn({index: 100})
             spalte_a: string
         }
 
@@ -119,7 +119,7 @@ class XLSDataSourceTest {
     @test("should identify the index of the headlines")
     parse_test_headlines() {
         let importer = new XLSDataSource(XLSHeadlineCols);
-        importer.open("tests/XLSImporterTestHeadline.xls", {hasHeadline: true});
+        importer.open("tests/XLSImporterTestHeadline.xls", {hasHeadline: true, strictMode: true});
         let gen = importer.generatePayload();
         var val = <XLSCols>gen.next().value;
         expect(importer.fields.spalte_a.index).to.equal(0);
@@ -130,7 +130,7 @@ class XLSDataSourceTest {
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {
         let importer = new XLSDataSource(XLSHeadlineCols);
-        importer.open("tests/XLSImporterTestHeadline.xls", {hasHeadline: true});
+        importer.open("tests/XLSImporterTestHeadline.xls", {hasHeadline: true, strictMode: true});
         let gen = importer.generatePayload();
         var val = <XLSCols>gen.next().value;
         expect(val.spalte_a).to.equal("1");

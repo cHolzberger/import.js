@@ -3,7 +3,7 @@ const CSVDataSource_1 = require("./CSVDataSource");
 var XLSX = require('xlsx');
 const fs = require("fs");
 class XLSDataSource extends CSVDataSource_1.CSVDataSource {
-    open(filename, options = { hasHeadline: false }) {
+    open(filename, options = { hasHeadline: false, strictMode: false, delimiter: "," }) {
         try {
             var stats = fs.statSync(filename);
         }
@@ -16,6 +16,8 @@ class XLSDataSource extends CSVDataSource_1.CSVDataSource {
         this.filename = filename;
         var workbook = XLSX.readFile(filename);
         this.content = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+        if (!options.delimiter)
+            options.delimiter = ",";
         this.options = options;
         this.parseCsv();
     }
