@@ -67,6 +67,7 @@ class CSVDataSource extends DataSource_1.DataSource {
         // FIXME: do this the streaming way
         for (let oneLine of this.parsed) {
             let newObject = new this.payloadClass();
+            let skip = false;
             for (let key in this.fields) {
                 var idx = this.fields[key].index;
                 if (oneLine[idx]) {
@@ -82,11 +83,14 @@ class CSVDataSource extends DataSource_1.DataSource {
                         throw new Error("Not enough columns in the File: " + this.filename);
                     }
                     else {
-                        continue; // ignore column
+                        skip = true;
+                        break; // ignore column
                     }
                 }
             }
-            yield newObject;
+            if (!skip) {
+                yield newObject;
+            }
         }
     }
     get fields() {
