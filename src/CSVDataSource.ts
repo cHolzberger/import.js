@@ -105,7 +105,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
 
     public *generatePayload(): IterableIterator<T> {
         // FIXME: do this the streaming way
-        yield* this.parsed.map((oneLine: string[]) => {
+        for ( let oneLine of this.parsed) {
             let newObject: any = new this.payloadClass();
             for (let key in this.fields) {
                 var idx = this.fields[key].index;
@@ -123,8 +123,8 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
                     }
                 }
             }
-            return newObject;
-        });
+            yield newObject;
+        }
     }
 
     get fields(): any {

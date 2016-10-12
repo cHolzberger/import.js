@@ -65,7 +65,7 @@ class CSVDataSource extends DataSource_1.DataSource {
     }
     *generatePayload() {
         // FIXME: do this the streaming way
-        yield* this.parsed.map((oneLine) => {
+        for (let oneLine of this.parsed) {
             let newObject = new this.payloadClass();
             for (let key in this.fields) {
                 var idx = this.fields[key].index;
@@ -86,8 +86,8 @@ class CSVDataSource extends DataSource_1.DataSource {
                     }
                 }
             }
-            return newObject;
-        });
+            yield newObject;
+        }
     }
     get fields() {
         var c = this.payloadClass;
