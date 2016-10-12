@@ -10,6 +10,7 @@ export interface constructorof<T> {
 export interface CSVDataSourceOptions {
     delimiter: string;
     hasHeadline: boolean;
+    strictMode: boolean;
 }
 export interface CSVDataSourceColumnInfo {
     index: number;

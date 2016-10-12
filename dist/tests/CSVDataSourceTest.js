@@ -94,7 +94,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         ], CSVColsXXL.prototype, "spalte_a", void 0);
         try {
             let importer = new CSVDataSource_1.CSVDataSource(CSVColsXXL);
-            importer.open("tests/CSVImporterTest.csv");
+            importer.open("tests/CSVImporterTest.csv", { delimiter: ";", hasHeadline: false, strictMode: true });
             let gen = importer.generatePayload();
             gen.next();
         }
@@ -105,6 +105,26 @@ let CSVDataSourceTest = class CSVDataSourceTest {
             }
         }
         chai_1.expect(exeptionFired).to.equal(true);
+    }
+    parse_test_csv_file_rows_high_index_non_strict() {
+        var exeptionFired = false;
+        class CSVColsXXL extends ImportPayload_1.ImportPayload {
+        }
+        __decorate([
+            CSVDataSource_1.CSVDataSource.indexColumn({ index: 100, required: true })
+        ], CSVColsXXL.prototype, "spalte_a", void 0);
+        try {
+            let importer = new CSVDataSource_1.CSVDataSource(CSVColsXXL);
+            importer.open("tests/CSVImporterTest.csv", { delimiter: ";", hasHeadline: false, strictMode: false });
+            let gen = importer.generatePayload();
+            gen.next();
+        }
+        catch (e) {
+            if (e instanceof Error) {
+                exeptionFired = true;
+            }
+        }
+        chai_1.expect(exeptionFired).to.equal(false);
     }
     parse_test_csv_file_rows_high_index_not_required() {
         class CSVColsXXL extends ImportPayload_1.ImportPayload {
@@ -133,7 +153,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
     }
     parse_test_headlines() {
         let importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true });
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = gen.next().value;
         chai_1.expect(importer.fields.spalte_a.index).to.equal(0);
@@ -149,7 +169,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
     }
     parse_test_headlines_data() {
         let importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true });
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = gen.next().value;
         chai_1.expect(val.spalte_a).to.equal("1");
@@ -170,6 +190,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should throw an error because the col definition accesses an index that does not exist in the CSV File and is required")
 ], CSVDataSourceTest.prototype, "parse_test_csv_file_rows_high_index", null);
+__decorate([
+    mocha_typescript_1.test("should throw NO error but ignore the row because the col definition accesses an index that does not exist in the CSV File and is required and strict mode is of")
+], CSVDataSourceTest.prototype, "parse_test_csv_file_rows_high_index_non_strict", null);
 __decorate([
     mocha_typescript_1.test("should throw NO error because the col definition accesses an index that does not exist in the CSV File and is not required")
 ], CSVDataSourceTest.prototype, "parse_test_csv_file_rows_high_index_not_required", null);
