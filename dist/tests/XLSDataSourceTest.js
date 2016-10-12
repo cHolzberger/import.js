@@ -107,7 +107,7 @@ let XLSDataSourceTest = class XLSDataSourceTest {
     }
     parse_test_headlines() {
         let importer = new XLSDataSource_1.XLSDataSource(XLSHeadlineCols);
-        importer.open("tests/XLSImporterTestHeadline.xls", { hasHeadline: true });
+        importer.open("tests/XLSImporterTestHeadline.xls", { hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = gen.next().value;
         chai_1.expect(importer.fields.spalte_a.index).to.equal(0);
@@ -116,7 +116,7 @@ let XLSDataSourceTest = class XLSDataSourceTest {
     }
     parse_test_headlines_data() {
         let importer = new XLSDataSource_1.XLSDataSource(XLSHeadlineCols);
-        importer.open("tests/XLSImporterTestHeadline.xls", { hasHeadline: true });
+        importer.open("tests/XLSImporterTestHeadline.xls", { hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = gen.next().value;
         chai_1.expect(val.spalte_a).to.equal("1");
