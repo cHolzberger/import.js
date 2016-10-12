@@ -94,6 +94,7 @@ class CSVDataSourceTest {
 
     @test("should throw an error because the col definition accesses an index that does not exist in the CSV File and is required")
     parse_test_csv_file_rows_high_index() {
+        var exeptionFired:boolean = false;
         class CSVColsXXL extends ImportPayload {
             @CSVDataSource.indexColumn({ index: 100, required: true })
             spalte_a: string
@@ -107,9 +108,11 @@ class CSVDataSourceTest {
             gen.next();
         } catch (e) {
             if (e instanceof Error) {
+                exeptionFired = true;
                 expect(e.message).to.equal("Not enough columns in the File: tests/CSVImporterTest.csv");
             }
         }
+        expect(exeptionFired).to.equal(true);
     }
 
     @test("should throw NO error because the col definition accesses an index that does not exist in the CSV File and is not required")

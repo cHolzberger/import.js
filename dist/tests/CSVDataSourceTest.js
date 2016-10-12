@@ -86,6 +86,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         chai_1.expect(second_row.spalte_c).to.equal("c");
     }
     parse_test_csv_file_rows_high_index() {
+        var exeptionFired = false;
         class CSVColsXXL extends ImportPayload_1.ImportPayload {
         }
         __decorate([
@@ -99,9 +100,11 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         }
         catch (e) {
             if (e instanceof Error) {
+                exeptionFired = true;
                 chai_1.expect(e.message).to.equal("Not enough columns in the File: tests/CSVImporterTest.csv");
             }
         }
+        chai_1.expect(exeptionFired).to.equal(true);
     }
     parse_test_csv_file_rows_high_index_not_required() {
         class CSVColsXXL extends ImportPayload_1.ImportPayload {
