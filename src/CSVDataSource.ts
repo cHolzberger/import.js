@@ -103,14 +103,14 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         yield* this.parsed.map((oneLine: string[]) => {
             let newObject: any = new this.payloadClass();
             for (let key in this.fields) {
-                var idx = this.fields[key]['index'];
+                var idx = this.fields[key].index;
                 if (oneLine[idx]) {
                     if (this.fields[key].converter) {
                         newObject[key] = this.fields[key].converter(oneLine[idx]);
                     } else {
                         newObject[key] = oneLine[idx];
                     }
-                } else if (this.fields[key]['index'].required) {
+                } else if (this.fields[key].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
             }

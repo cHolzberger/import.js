@@ -65,7 +65,7 @@ class CSVDataSource extends DataSource_1.DataSource {
         yield* this.parsed.map((oneLine) => {
             let newObject = new this.payloadClass();
             for (let key in this.fields) {
-                var idx = this.fields[key]['index'];
+                var idx = this.fields[key].index;
                 if (oneLine[idx]) {
                     if (this.fields[key].converter) {
                         newObject[key] = this.fields[key].converter(oneLine[idx]);
