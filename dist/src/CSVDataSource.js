@@ -74,7 +74,7 @@ class CSVDataSource extends DataSource_1.DataSource {
                         newObject[key] = oneLine[idx];
                     }
                 }
-                else if (this.fields[key]['index'].required) {
+                else if (this.fields[key].required) {
                     throw new Error("Not enough columns in the File: " + this.filename);
                 }
             }
