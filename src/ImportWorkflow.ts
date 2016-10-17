@@ -15,7 +15,7 @@ export interface WorkflowEventHandler<T> {
     postprocess?(data: T): Promise<T>;
 }
 
-class SkipPayload {
+export class SkipPayload {
     reason: string;
     constructor(reason: string) {
         this.reason = reason;

@@ -12,6 +12,7 @@ class SkipPayload {
         this.reason = reason;
     }
 }
+exports.SkipPayload = SkipPayload;
 class ImportWorkflow {
     constructor() {
         this.handlers = [];
