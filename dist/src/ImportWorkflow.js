@@ -7,6 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+class SkipPayload {
+    constructor(reason) {
+        this.reason = reason;
+    }
+}
 class ImportWorkflow {
     constructor() {
         this.handlers = [];
@@ -27,22 +32,32 @@ class ImportWorkflow {
                     break;
                 }
                 var payload = value.value;
-                // preprocess
-                for (i = 0; i < this.handlers.length; i++) {
-                    let handler = this.handlers[i];
-                    payload = handler.preprocess ? yield handler.preprocess(payload) : payload;
+                try {
+                    // preprocess
+                    for (i = 0; i < this.handlers.length; i++) {
+                        let handler = this.handlers[i];
+                        payload = handler.preprocess ? yield handler.preprocess(payload) : payload;
+                    }
+                    // import
+                    for (i = 0; i < this.handlers.length; i++) {
+                        let handler = this.handlers[i];
+                        payload = handler.import ? yield handler.import(payload) : payload;
+                    }
+                    // postprocess
+                    for (i = 0; i < this.handlers.length; i++) {
+                        let handler = this.handlers[i];
+                        payload = handler.postprocess ? yield handler.postprocess(payload) : payload;
+                    }
+                    results.push(payload);
                 }
-                // import
-                for (i = 0; i < this.handlers.length; i++) {
-                    let handler = this.handlers[i];
-                    payload = handler.import ? yield handler.import(payload) : payload;
+                catch (e) {
+                    if (typeof (e) === "SkipPayload") {
+                        console.info("Skipped a payload: " + e.reason);
+                    }
+                    else {
+                        throw e;
+                    }
                 }
-                // postprocess
-                for (i = 0; i < this.handlers.length; i++) {
-                    let handler = this.handlers[i];
-                    payload = handler.postprocess ? yield handler.postprocess(payload) : payload;
-                }
-                results.push(payload);
             }
             return results;
         });

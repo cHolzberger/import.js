@@ -17,7 +17,7 @@ export interface WorkflowEventHandler<T> {
 
 class SkipPayload {
     reason: string;
-    constructor(string: reason) {
+    constructor(reason: string) {
         this.reason = reason;
     }
 }
