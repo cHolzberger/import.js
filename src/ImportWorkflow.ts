@@ -15,10 +15,17 @@ export interface WorkflowEventHandler<T> {
     postprocess?(data: T): Promise<T>;
 }
 
+class SkipPayload {
+    reason: string;
+    constructor(string: reason) {
+        this.reason = reason;
+    }
+}
+
 
 
 export class ImportWorkflow<T> {
-    private handlers: WorkflowEventHandler<T> [] = [];
+    private handlers: WorkflowEventHandler<T>[] = [];
 
     public on(handler: WorkflowEventHandler<T>) {
         this.handlers.push(handler);
@@ -28,8 +35,8 @@ export class ImportWorkflow<T> {
         this.handlers = this.handlers.filter(h => h !== handler);
     }
 
-    public async run(gen: IterableIterator<T>):Promise<T[]> {
-        var results:T[] = [];
+    public async run(gen: IterableIterator<T>): Promise<T[]> {
+        var results: T[] = [];
         while (true) {
             var value = gen.next();
             var i = 0;
@@ -38,28 +45,35 @@ export class ImportWorkflow<T> {
             }
 
             var payload: T = value.value;
+            try {
+                // preprocess
+                for (i = 0; i < this.handlers.length; i++) {
+                    let handler = this.handlers[i];
+                    payload = handler.preprocess ? await handler.preprocess(payload) : payload;
+                }
 
-            // preprocess
-            for (i=0; i<this.handlers.length; i++) {
-                let handler = this.handlers[i];
-                payload = handler.preprocess ? await handler.preprocess(payload) : payload;
+
+                // import
+                for (i = 0; i < this.handlers.length; i++) {
+                    let handler = this.handlers[i];
+
+                    payload = handler.import ? await handler.import(payload) : payload;
+                }
+
+                // postprocess
+                for (i = 0; i < this.handlers.length; i++) {
+                    let handler = this.handlers[i];
+
+                    payload = handler.postprocess ? await handler.postprocess(payload) : payload;
+                }
+                results.push(payload);
+            } catch (e) {
+                if (typeof (e) === "SkipPayload") {
+                  console.info ("Skipped a payload: " + e.reason);
+                } else {
+                    throw e;
+                }
             }
-
-
-            // import
-            for (i=0; i<this.handlers.length; i++) {
-                let handler = this.handlers[i];
-
-                payload = handler.import ? await handler.import(payload) : payload;
-            }
-
-            // postprocess
-            for (i=0; i<this.handlers.length; i++) {
-                let handler = this.handlers[i];
-
-                payload = handler.postprocess ? await handler.postprocess(payload) : payload;
-            }
-            results.push(payload);
 
         }
         return results;
