@@ -1,7 +1,7 @@
 import {suite, test, slow, timeout, skip, only} from "mocha-typescript";
 import {expect} from 'chai';
 
-import {SkipPayload, ImportWorkflow, WorkflowEventHandler} from "../src/ImportWorkflow";
+import {LogEntry, SkipPayload, ImportWorkflow, WorkflowEventHandler} from "../src/ImportWorkflow";
 import { CSVDataSource } from "../src/CSVDataSource";
 import { ImportPayload } from "../src/ImportPayload";
 
@@ -69,5 +69,25 @@ class CSVDataSourceTest {
         worker.on(handler);
         var results:CSVCols[] = await worker.run(importer.generatePayload());
         expect(results[0].spalte_a).to.equal("a");
+    }
+
+    @test("should ignore results when SkipPayload is thrown and log the reason")
+    async test_integration_skip_log () {
+        let importer = new CSVDataSource(CSVCols);
+        importer.open("tests/CSVImporterTest.csv");
+
+        var handler:WorkflowEventHandler<CSVCols> = {
+            "import": (data):Promise<CSVCols> => {
+              if ( data.spalte_a == "1") {
+                throw new SkipPayload("Test");
+              }
+              return Promise.resolve(data);
+            }
+        };
+        let worker:ImportWorkflow<CSVCols> = new ImportWorkflow<CSVCols>();
+        worker.on(handler);
+        var results:CSVCols[] = await worker.run(importer.generatePayload());
+
+        expect(worker.log[0].reason).to.equal("Test");
     }
 }

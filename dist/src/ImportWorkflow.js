@@ -7,8 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-class SkipPayload {
+class LogEntry {
+}
+exports.LogEntry = LogEntry;
+class SkipPayload extends LogEntry {
     constructor(reason) {
+        super();
         this.reason = reason;
     }
 }
@@ -16,12 +20,16 @@ exports.SkipPayload = SkipPayload;
 class ImportWorkflow {
     constructor() {
         this.handlers = [];
+        this._log = [];
     }
     on(handler) {
         this.handlers.push(handler);
     }
     off(handler) {
         this.handlers = this.handlers.filter(h => h !== handler);
+    }
+    get log() {
+        return this._log;
     }
     run(gen) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -52,9 +60,9 @@ class ImportWorkflow {
                     results.push(payload);
                 }
                 catch (e) {
-                    console.log("been here: " + typeof (e));
-                    if (e instanceof SkipPayload) {
+                    if (e instanceof LogEntry) {
                         console.info("Skipped a payload: " + e.reason);
+                        this._log.push(e);
                     }
                     else {
                         throw e;

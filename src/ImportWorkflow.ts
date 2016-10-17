@@ -15,9 +15,14 @@ export interface WorkflowEventHandler<T> {
     postprocess?(data: T): Promise<T>;
 }
 
-export class SkipPayload {
+export abstract class LogEntry {
+    reason: string;
+}
+
+export class SkipPayload extends LogEntry {
     reason: string;
     constructor(reason: string) {
+        super();
         this.reason = reason;
     }
 }
@@ -26,6 +31,7 @@ export class SkipPayload {
 
 export class ImportWorkflow<T> {
     private handlers: WorkflowEventHandler<T>[] = [];
+    private _log: LogEntry[] = [];
 
     public on(handler: WorkflowEventHandler<T>) {
         this.handlers.push(handler);
@@ -33,6 +39,10 @@ export class ImportWorkflow<T> {
 
     public off(handler: WorkflowEventHandler<T>) {
         this.handlers = this.handlers.filter(h => h !== handler);
+    }
+
+    public get log(): LogEntry[] {
+        return this._log;
     }
 
     public async run(gen: IterableIterator<T>): Promise<T[]> {
@@ -68,8 +78,9 @@ export class ImportWorkflow<T> {
                 }
                 results.push(payload);
             } catch (e) {
-                if (e instanceof SkipPayload) {
-                  console.info ("Skipped a payload: " + e.reason);
+                if (e instanceof LogEntry) {
+                    console.info("Skipped a payload: " + e.reason);
+                    this._log.push(e);
                 } else {
                     throw e;
                 }

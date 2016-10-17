@@ -81,6 +81,24 @@ let CSVDataSourceTest = class CSVDataSourceTest {
             chai_1.expect(results[0].spalte_a).to.equal("a");
         });
     }
+    test_integration_skip_log() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let importer = new CSVDataSource_1.CSVDataSource(CSVCols);
+            importer.open("tests/CSVImporterTest.csv");
+            var handler = {
+                "import": (data) => {
+                    if (data.spalte_a == "1") {
+                        throw new ImportWorkflow_1.SkipPayload("Test");
+                    }
+                    return Promise.resolve(data);
+                }
+            };
+            let worker = new ImportWorkflow_1.ImportWorkflow();
+            worker.on(handler);
+            var results = yield worker.run(importer.generatePayload());
+            chai_1.expect(worker.log[0].reason).to.equal("Test");
+        });
+    }
 };
 __decorate([
     mocha_typescript_1.test("should flow through data")
@@ -91,6 +109,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should ignore results when SkipPayload is thrown")
 ], CSVDataSourceTest.prototype, "test_integration_skip", null);
+__decorate([
+    mocha_typescript_1.test("should ignore results when SkipPayload is thrown and log the reason")
+], CSVDataSourceTest.prototype, "test_integration_skip_log", null);
 CSVDataSourceTest = __decorate([
     mocha_typescript_1.suite("CSVDataSource and ImportWorkflow")
 ], CSVDataSourceTest);
