@@ -68,7 +68,7 @@ export class ImportWorkflow<T> {
                 }
                 results.push(payload);
             } catch (e) {
-                if (typeof (e) === "SkipPayload") {
+                if (e instanceof SkipPayload) {
                   console.info ("Skipped a payload: " + e.reason);
                 } else {
                     throw e;

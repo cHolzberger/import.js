@@ -52,7 +52,8 @@ class ImportWorkflow {
                     results.push(payload);
                 }
                 catch (e) {
-                    if (typeof (e) === "SkipPayload") {
+                    console.log("been here: " + typeof (e));
+                    if (e instanceof SkipPayload) {
                         console.info("Skipped a payload: " + e.reason);
                     }
                     else {
