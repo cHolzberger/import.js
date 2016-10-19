@@ -34,6 +34,10 @@ class ImportWorkflow {
     run(gen) {
         return __awaiter(this, void 0, void 0, function* () {
             var results = [];
+            for (i = 0; i < this.handlers.length; i++) {
+                let handler = this.handlers[i];
+                handler.startImport ? handler.startImport() : false;
+            }
             while (true) {
                 var value = gen.next();
                 var i = 0;
@@ -68,6 +72,10 @@ class ImportWorkflow {
                         throw e;
                     }
                 }
+            }
+            for (i = 0; i < this.handlers.length; i++) {
+                let handler = this.handlers[i];
+                handler.finishImport ? handler.finishImport(results) : false;
             }
             return results;
         });

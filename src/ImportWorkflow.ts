@@ -10,6 +10,8 @@
 import {ImportPayload} from "./ImportPayload";
 
 export interface WorkflowEventHandler<T> {
+    startImport?(): void;
+    finishImport?(data: T[]): void;
     preprocess?(data: T): Promise<T>;
     import?(data: T): Promise<T>;
     postprocess?(data: T): Promise<T>;
@@ -47,6 +49,11 @@ export class ImportWorkflow<T> {
 
     public async run(gen: IterableIterator<T>): Promise<T[]> {
         var results: T[] = [];
+        for (i = 0; i < this.handlers.length; i++) {
+            let handler = this.handlers[i];
+            handler.startImport ? handler.startImport() :false ;
+        }
+
         while (true) {
             var value = gen.next();
             var i = 0;
@@ -86,6 +93,11 @@ export class ImportWorkflow<T> {
                 }
             }
 
+        }
+
+        for (i = 0; i < this.handlers.length; i++) {
+            let handler = this.handlers[i];
+            handler.finishImport ? handler.finishImport(results) : false  ;
         }
         return results;
     }

@@ -91,4 +91,35 @@ class CSVDataSourceTest {
             expect(count).to.equal(2);
       });
     }
+
+    @test("should call start prior to starting importing")
+    async test_start_import() {
+      var count = 0;
+
+      var handler:WorkflowEventHandler<string> = {
+        "startImport": ():void => { count++;},
+      };
+
+      let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
+      worker.on(handler);
+
+      await worker.run(testGenerator());
+      expect(count).to.equal(1);
+    }
+
+    @test("should call finish after importing")
+    async test_finish_import() {
+      var count = 0;
+
+      var handler:WorkflowEventHandler<string> = {
+        "finishImport": ():void => { count++;},
+      };
+
+      let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
+      worker.on(handler);
+
+      await worker.run(testGenerator());
+      expect(count).to.equal(1);
+
+    }
 }

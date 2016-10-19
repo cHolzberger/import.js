@@ -5,6 +5,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const mocha_typescript_1 = require("mocha-typescript");
 const chai_1 = require('chai');
 const ImportWorkflow_1 = require("../src/ImportWorkflow");
@@ -67,6 +75,30 @@ let CSVDataSourceTest = class CSVDataSourceTest {
             chai_1.expect(count).to.equal(2);
         });
     }
+    test_start_import() {
+        return __awaiter(this, void 0, void 0, function* () {
+            var count = 0;
+            var handler = {
+                "startImport": () => { count++; },
+            };
+            let worker = new ImportWorkflow_1.ImportWorkflow();
+            worker.on(handler);
+            yield worker.run(testGenerator());
+            chai_1.expect(count).to.equal(1);
+        });
+    }
+    test_finish_import() {
+        return __awaiter(this, void 0, void 0, function* () {
+            var count = 0;
+            var handler = {
+                "finishImport": () => { count++; },
+            };
+            let worker = new ImportWorkflow_1.ImportWorkflow();
+            worker.on(handler);
+            yield worker.run(testGenerator());
+            chai_1.expect(count).to.equal(1);
+        });
+    }
 };
 __decorate([
     mocha_typescript_1.test("should call import")
@@ -86,6 +118,12 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should run 2 times for demo data")
 ], CSVDataSourceTest.prototype, "test_times", null);
+__decorate([
+    mocha_typescript_1.test("should call start prior to starting importing")
+], CSVDataSourceTest.prototype, "test_start_import", null);
+__decorate([
+    mocha_typescript_1.test("should call finish after importing")
+], CSVDataSourceTest.prototype, "test_finish_import", null);
 CSVDataSourceTest = __decorate([
     mocha_typescript_1.suite("An ImportWorkflow")
 ], CSVDataSourceTest);
