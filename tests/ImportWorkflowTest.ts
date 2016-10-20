@@ -97,7 +97,7 @@ class CSVDataSourceTest {
       var count = 0;
 
       var handler:WorkflowEventHandler<string> = {
-        "startImport": ():void => { count++;},
+        "startImport": ():Promise<any> => { count++; return Promise.resolve()},
       };
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();
@@ -112,7 +112,7 @@ class CSVDataSourceTest {
       var count = 0;
 
       var handler:WorkflowEventHandler<string> = {
-        "finishImport": ():void => { count++;},
+        "finishImport": ():Promise<any> => { count++; return Promise.resolve()},
       };
 
       let worker:ImportWorkflow<string> = new ImportWorkflow<string>();

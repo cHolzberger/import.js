@@ -79,7 +79,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         return __awaiter(this, void 0, void 0, function* () {
             var count = 0;
             var handler = {
-                "startImport": () => { count++; },
+                "startImport": () => { count++; return Promise.resolve(); },
             };
             let worker = new ImportWorkflow_1.ImportWorkflow();
             worker.on(handler);
@@ -91,7 +91,7 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         return __awaiter(this, void 0, void 0, function* () {
             var count = 0;
             var handler = {
-                "finishImport": () => { count++; },
+                "finishImport": () => { count++; return Promise.resolve(); },
             };
             let worker = new ImportWorkflow_1.ImportWorkflow();
             worker.on(handler);

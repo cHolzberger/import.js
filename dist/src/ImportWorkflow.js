@@ -36,7 +36,7 @@ class ImportWorkflow {
             var results = [];
             for (i = 0; i < this.handlers.length; i++) {
                 let handler = this.handlers[i];
-                handler.startImport ? handler.startImport() : false;
+                handler.startImport ? yield handler.startImport() : false;
             }
             while (true) {
                 var value = gen.next();
@@ -75,7 +75,7 @@ class ImportWorkflow {
             }
             for (i = 0; i < this.handlers.length; i++) {
                 let handler = this.handlers[i];
-                handler.finishImport ? handler.finishImport(results) : false;
+                handler.finishImport ? yield handler.finishImport(results) : false;
             }
             return results;
         });

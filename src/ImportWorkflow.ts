@@ -10,8 +10,8 @@
 import {ImportPayload} from "./ImportPayload";
 
 export interface WorkflowEventHandler<T> {
-    startImport?(): void;
-    finishImport?(data: T[]): void;
+    startImport?(): Promise<T>;
+    finishImport?(data: T[]): Promise<T>;
     preprocess?(data: T): Promise<T>;
     import?(data: T): Promise<T>;
     postprocess?(data: T): Promise<T>;
@@ -51,7 +51,7 @@ export class ImportWorkflow<T> {
         var results: T[] = [];
         for (i = 0; i < this.handlers.length; i++) {
             let handler = this.handlers[i];
-            handler.startImport ? handler.startImport() :false ;
+            handler.startImport ? await handler.startImport() :false ;
         }
 
         while (true) {
@@ -97,7 +97,7 @@ export class ImportWorkflow<T> {
 
         for (i = 0; i < this.handlers.length; i++) {
             let handler = this.handlers[i];
-            handler.finishImport ? handler.finishImport(results) : false  ;
+            handler.finishImport ? await handler.finishImport(results) : false  ;
         }
         return results;
     }

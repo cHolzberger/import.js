@@ -1,7 +1,7 @@
 /// <reference types="node" />
 export interface WorkflowEventHandler<T> {
-    startImport?(): void;
-    finishImport?(data: T[]): void;
+    startImport?(): Promise<T>;
+    finishImport?(data: T[]): Promise<T>;
     preprocess?(data: T): Promise<T>;
     import?(data: T): Promise<T>;
     postprocess?(data: T): Promise<T>;
