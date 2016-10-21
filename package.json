@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "csv-parse": "^1.1.7",
+    "merge-deep": "^3.0.0",
     "xlsx": "^0.8.0"
   },
   "devDependencies": {

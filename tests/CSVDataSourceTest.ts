@@ -16,7 +16,7 @@ class CSVCols extends ImportPayload {
 }
 
 class CSVHeadlineCols extends ImportPayload {
-    @CSVDataSource.regexColumn({ regex: /COLA/ })
+    @CSVDataSource.regexColumn({ regex: /COLA/, required: true })
     spalte_a: string
 
     @CSVDataSource.regexColumn({ regex: /COLB/ })
@@ -198,7 +198,7 @@ class CSVDataSourceTest {
 
     @test("should return the correct values when searching for headlines with two different files")
     parse_test_headlines_data_two_times() {
-        var importer:CSVDataSource<CSVHeadlineCols>, gen:IterableIterator<CSVHeadlineCols>, val:CSVCols;
+        var importer: CSVDataSource<CSVHeadlineCols>, gen: IterableIterator<CSVHeadlineCols>, val: CSVCols;
         importer = new CSVDataSource(CSVHeadlineCols);
         importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
         gen = importer.generatePayload();
@@ -210,5 +210,21 @@ class CSVDataSourceTest {
         gen = importer.generatePayload();
         val = <CSVCols>gen.next().value;
         expect(val.spalte_a).to.equal("1");
+    }
+
+    @test("should throw an error if required fields are missing")
+    parse_test_headlines_data_mssing() {
+        var exceptionFired = false;
+        try {
+            var importer: CSVDataSource<CSVHeadlineCols>, gen: IterableIterator<CSVHeadlineCols>, val: CSVCols;
+            importer = new CSVDataSource(CSVHeadlineCols);
+            importer.open("tests/CSVImporterTestHeadlineMissing.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+            gen = importer.generatePayload();
+            val = <CSVCols>gen.next().value;
+        } catch (e) {
+            exceptionFired = true;
+        }
+        expect(exceptionFired).to.equal(true);
+
     }
 }

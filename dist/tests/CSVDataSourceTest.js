@@ -23,7 +23,7 @@ __decorate([
 class CSVHeadlineCols extends ImportPayload_1.ImportPayload {
 }
 __decorate([
-    CSVDataSource_1.CSVDataSource.regexColumn({ regex: /COLA/ })
+    CSVDataSource_1.CSVDataSource.regexColumn({ regex: /COLA/, required: true })
 ], CSVHeadlineCols.prototype, "spalte_a", void 0);
 __decorate([
     CSVDataSource_1.CSVDataSource.regexColumn({ regex: /COLB/ })
@@ -187,6 +187,20 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         val = gen.next().value;
         chai_1.expect(val.spalte_a).to.equal("1");
     }
+    parse_test_headlines_data_mssing() {
+        var exceptionFired = false;
+        try {
+            var importer, gen, val;
+            importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
+            importer.open("tests/CSVImporterTestHeadlineMissing.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+            gen = importer.generatePayload();
+            val = gen.next().value;
+        }
+        catch (e) {
+            exceptionFired = true;
+        }
+        chai_1.expect(exceptionFired).to.equal(true);
+    }
 };
 __decorate([
     mocha_typescript_1.test("should know about its fields")
@@ -224,6 +238,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should return the correct values when searching for headlines with two different files")
 ], CSVDataSourceTest.prototype, "parse_test_headlines_data_two_times", null);
+__decorate([
+    mocha_typescript_1.test("should throw an error if required fields are missing")
+], CSVDataSourceTest.prototype, "parse_test_headlines_data_mssing", null);
 CSVDataSourceTest = __decorate([
     mocha_typescript_1.suite("A CSVDataSource")
 ], CSVDataSourceTest);

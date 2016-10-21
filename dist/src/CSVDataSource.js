@@ -4,6 +4,7 @@
 "use strict";
 const DataSource_1 = require("./DataSource");
 var parse = require('csv-parse/lib/sync');
+var merge = require("merge-deep");
 const fs = require("fs");
 class CSVDataSource extends DataSource_1.DataSource {
     constructor(ctor) {
@@ -110,7 +111,7 @@ class CSVDataSource extends DataSource_1.DataSource {
     **/
     get fields() {
         var c = this.payloadClass;
-        return Object.assign({}, c._fields, this._dynamicFields);
+        return merge(this._dynamicFields, c._fields);
     }
     // decorators
     static indexColumn(info) {

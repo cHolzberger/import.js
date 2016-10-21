@@ -5,6 +5,7 @@
 import {DataSource} from "./DataSource";
 import {ImportPayload} from "./ImportPayload";
 var parse = require('csv-parse/lib/sync');
+var merge = require("merge-deep");
 
 import fs = require("fs");
 
@@ -99,6 +100,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
               throw new Error ("Not all required fields found in xls");
             };
         }
+
     }
 
     private allRequiredFound():boolean {
@@ -149,7 +151,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
     **/
     get fields(): any {
         var c: any = this.payloadClass;
-        return Object.assign({},c._fields, this._dynamicFields);
+        return merge( this._dynamicFields, c._fields);
     }
 
     // decorators

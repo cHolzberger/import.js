@@ -36,6 +36,9 @@ export declare class CSVDataSource<T extends ImportPayload> extends DataSource {
     protected parseCsv(): void;
     private allRequiredFound();
     generatePayload(): IterableIterator<T>;
+    /**
+    gets the static and dynamic mappings for the fields in T
+    **/
     readonly fields: any;
     static indexColumn(info: CSVDataSourceColumnInfo): (target: any, propertyKey: string) => void;
     static regexColumn(info: CSVDataSourceHeadlineColumnInfo): (target: any, propertyKey: string) => void;
