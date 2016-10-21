@@ -69,7 +69,9 @@ class ImportWorkflow {
                         this._log.push(e);
                     }
                     else {
-                        throw e;
+                        console.log("Fatal error");
+                        console.dir(e);
+                        throw (e);
                     }
                 }
             }

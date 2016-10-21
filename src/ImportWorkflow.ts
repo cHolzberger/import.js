@@ -51,7 +51,7 @@ export class ImportWorkflow<T> {
         var results: T[] = [];
         for (i = 0; i < this.handlers.length; i++) {
             let handler = this.handlers[i];
-            handler.startImport ? await handler.startImport() :false ;
+            handler.startImport ? await handler.startImport() : false;
         }
 
         while (true) {
@@ -89,7 +89,9 @@ export class ImportWorkflow<T> {
                     console.info("Skipped a payload: " + e.reason);
                     this._log.push(e);
                 } else {
-                    throw e;
+                    console.log("Fatal error");
+                    console.dir(e);
+                    throw (e);
                 }
             }
 
@@ -97,7 +99,7 @@ export class ImportWorkflow<T> {
 
         for (i = 0; i < this.handlers.length; i++) {
             let handler = this.handlers[i];
-            handler.finishImport ? await handler.finishImport(results) : false  ;
+            handler.finishImport ? await handler.finishImport(results) : false;
         }
         return results;
     }
