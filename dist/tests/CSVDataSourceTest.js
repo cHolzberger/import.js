@@ -174,6 +174,19 @@ let CSVDataSourceTest = class CSVDataSourceTest {
         var val = gen.next().value;
         chai_1.expect(val.spalte_a).to.equal("1");
     }
+    parse_test_headlines_data_two_times() {
+        var importer, gen, val;
+        importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+        gen = importer.generatePayload();
+        val = gen.next().value;
+        chai_1.expect(val.spalte_a).to.equal("1");
+        importer = new CSVDataSource_1.CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadlineReverse.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+        gen = importer.generatePayload();
+        val = gen.next().value;
+        chai_1.expect(val.spalte_a).to.equal("1");
+    }
 };
 __decorate([
     mocha_typescript_1.test("should know about its fields")
@@ -208,6 +221,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should return the correct values when searching for headlines")
 ], CSVDataSourceTest.prototype, "parse_test_headlines_data", null);
+__decorate([
+    mocha_typescript_1.test("should return the correct values when searching for headlines with two different files")
+], CSVDataSourceTest.prototype, "parse_test_headlines_data_two_times", null);
 CSVDataSourceTest = __decorate([
     mocha_typescript_1.suite("A CSVDataSource")
 ], CSVDataSourceTest);

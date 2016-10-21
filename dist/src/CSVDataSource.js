@@ -38,30 +38,42 @@ class CSVDataSource extends DataSource_1.DataSource {
             var hl = this.parsed.shift();
             var c = this.payloadClass;
             var col = c.getFields();
-            hl.forEach(function (rowLabel, index) {
+            this._dynamicFields = {};
+            hl.forEach((rowLabel, index) => {
                 for (var colIdx in col) {
+                    if (!this._dynamicFields[colIdx]) {
+                        this._dynamicFields[colIdx] = {};
+                    }
                     var colInfo = col[colIdx];
-                    if (colInfo.found)
+                    // if the col has previously been found
+                    if (this._dynamicFields[colIdx].found)
                         continue;
                     if (rowLabel.match(colInfo.regex)) {
-                        colInfo.index = index;
-                        colInfo.found = true;
+                        this._dynamicFields[colIdx].index = index;
+                        this._dynamicFields[colIdx].found = true;
                         break;
                     }
                 }
             });
-            var allRequiredFound = true;
-            for (var idx in col) {
-                var item = col[idx];
-                if (item.required) {
-                    allRequiredFound = allRequiredFound && item.found;
-                    if (!item.found) {
-                        console.error("Not all required fields found in xls; Missing: " + idx);
-                        return;
-                    }
+            if (!this.allRequiredFound()) {
+                throw new Error("Not all required fields found in xls");
+            }
+            ;
+        }
+    }
+    allRequiredFound() {
+        var allRequiredFound = true;
+        for (var idx in this.fields) {
+            var item = this.fields[idx];
+            if (item.required) {
+                allRequiredFound = allRequiredFound && item.found;
+                if (!item.found) {
+                    console.error("Not all required fields found in xls; Missing: " + idx);
+                    return;
                 }
             }
         }
+        return allRequiredFound;
     }
     *generatePayload() {
         // FIXME: do this the streaming way
@@ -93,9 +105,12 @@ class CSVDataSource extends DataSource_1.DataSource {
             }
         }
     }
+    /**
+    gets the static and dynamic mappings for the fields in T
+    **/
     get fields() {
         var c = this.payloadClass;
-        return c._fields;
+        return Object.assign({}, c._fields, this._dynamicFields);
     }
     // decorators
     static indexColumn(info) {

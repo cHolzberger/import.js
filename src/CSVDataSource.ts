@@ -38,6 +38,7 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
     protected content: Buffer;
     protected options: any;
     private parsed: any;
+    private _dynamicFields:any;
 
     constructor(ctor: constructorof<T>) {
         super();
@@ -75,32 +76,44 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
             var hl: any = this.parsed.shift();
             var c: any = this.payloadClass;
             var col: any = c.getFields();
+            this._dynamicFields = {};
 
-            hl.forEach(function (rowLabel: string, index: number) {
+            hl.forEach((rowLabel: string, index: number) => {
                 for (var colIdx in col) {
+                  if ( ! this._dynamicFields[colIdx]) {
+                    this._dynamicFields[colIdx] = {};
+                  }
                     var colInfo = col[colIdx];
-                    if (colInfo.found) continue;
+
+                    // if the col has previously been found
+                    if (this._dynamicFields[colIdx].found) continue;
                     if (rowLabel.match(colInfo.regex)) {
-                        colInfo.index = index;
-                        colInfo.found = true;
+                        this._dynamicFields[colIdx].index = index;
+                        this._dynamicFields[colIdx].found = true;
                         break;
                     }
                 }
             });
 
-            var allRequiredFound = true;
-            for (var idx in col) {
-                var item = col[idx];
-                if (item.required) {
-                    allRequiredFound = allRequiredFound && item.found;
-                    if (!item.found) {
-                        console.error("Not all required fields found in xls; Missing: " + idx);
-                        return;
-                    }
-                }
-            }
-
+            if ( !this.allRequiredFound()) {
+              throw new Error ("Not all required fields found in xls");
+            };
         }
+    }
+
+    private allRequiredFound():boolean {
+      var allRequiredFound = true;
+      for (var idx in this.fields) {
+          var item = this.fields[idx];
+          if (item.required) {
+              allRequiredFound = allRequiredFound && item.found;
+              if (!item.found) {
+                  console.error("Not all required fields found in xls; Missing: " + idx);
+                  return;
+              }
+          }
+      }
+      return allRequiredFound;
     }
 
     public *generatePayload(): IterableIterator<T> {
@@ -131,9 +144,12 @@ export class CSVDataSource<T extends ImportPayload> extends DataSource {
         }
     }
 
+    /**
+    gets the static and dynamic mappings for the fields in T
+    **/
     get fields(): any {
         var c: any = this.payloadClass;
-        return c._fields;
+        return Object.assign({},c._fields, this._dynamicFields);
     }
 
     // decorators

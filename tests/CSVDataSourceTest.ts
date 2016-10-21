@@ -27,7 +27,7 @@ class CSVHeadlineCols extends ImportPayload {
 }
 
 class CSVHeadlineColsNumber extends ImportPayload {
-    @CSVDataSource.indexColumn({index: 0,  converter: parseInt })
+    @CSVDataSource.indexColumn({ index: 0, converter: parseInt })
     spalte_a: number
 }
 
@@ -94,7 +94,7 @@ class CSVDataSourceTest {
 
     @test("should throw an error because the col definition accesses an index that does not exist in the CSV File and is required")
     parse_test_csv_file_rows_high_index() {
-        var exeptionFired:boolean = false;
+        var exeptionFired: boolean = false;
         class CSVColsXXL extends ImportPayload {
             @CSVDataSource.indexColumn({ index: 100, required: true })
             spalte_a: string
@@ -102,7 +102,7 @@ class CSVDataSourceTest {
 
         try {
             let importer = new CSVDataSource(CSVColsXXL);
-            importer.open("tests/CSVImporterTest.csv", {delimiter: ";", hasHeadline: false, strictMode: true});
+            importer.open("tests/CSVImporterTest.csv", { delimiter: ";", hasHeadline: false, strictMode: true });
 
             let gen = importer.generatePayload();
             gen.next();
@@ -117,7 +117,7 @@ class CSVDataSourceTest {
 
     @test("should throw NO error but ignore the row because the col definition accesses an index that does not exist in the CSV File and is required and strict mode is of")
     parse_test_csv_file_rows_high_index_non_strict() {
-        var exeptionFired:boolean = false;
+        var exeptionFired: boolean = false;
         class CSVColsXXL extends ImportPayload {
             @CSVDataSource.indexColumn({ index: 100, required: true })
             spalte_a: string
@@ -125,7 +125,7 @@ class CSVDataSourceTest {
 
         try {
             let importer = new CSVDataSource(CSVColsXXL);
-            importer.open("tests/CSVImporterTest.csv", {delimiter: ";", hasHeadline: false, strictMode: false});
+            importer.open("tests/CSVImporterTest.csv", { delimiter: ";", hasHeadline: false, strictMode: false });
 
             let gen = importer.generatePayload();
             gen.next();
@@ -169,7 +169,7 @@ class CSVDataSourceTest {
     @test("should identify the index of the headlines")
     parse_test_headlines() {
         let importer = new CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true, strictMode: true});
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = <CSVCols>gen.next().value;
         expect(importer.fields.spalte_a.index).to.equal(0);
@@ -190,9 +190,25 @@ class CSVDataSourceTest {
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {
         let importer = new CSVDataSource(CSVHeadlineCols);
-        importer.open("tests/CSVImporterTestHeadline.csv", {delimiter: ";", hasHeadline: true, strictMode:true});
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
         let gen = importer.generatePayload();
         var val = <CSVCols>gen.next().value;
+        expect(val.spalte_a).to.equal("1");
+    }
+
+    @test("should return the correct values when searching for headlines with two different files")
+    parse_test_headlines_data_two_times() {
+        var importer:CSVDataSource<CSVHeadlineCols>, gen:IterableIterator<CSVHeadlineCols>, val:CSVCols;
+        importer = new CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadline.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+        gen = importer.generatePayload();
+        val = <CSVCols>gen.next().value;
+        expect(val.spalte_a).to.equal("1");
+
+        importer = new CSVDataSource(CSVHeadlineCols);
+        importer.open("tests/CSVImporterTestHeadlineReverse.csv", { delimiter: ";", hasHeadline: true, strictMode: true });
+        gen = importer.generatePayload();
+        val = <CSVCols>gen.next().value;
         expect(val.spalte_a).to.equal("1");
     }
 }

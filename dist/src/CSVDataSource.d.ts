@@ -30,9 +30,11 @@ export declare class CSVDataSource<T extends ImportPayload> extends DataSource {
     protected content: Buffer;
     protected options: any;
     private parsed;
+    private _dynamicFields;
     constructor(ctor: constructorof<T>);
     open(filename: string, options?: CSVDataSourceOptions): void;
     protected parseCsv(): void;
+    private allRequiredFound();
     generatePayload(): IterableIterator<T>;
     readonly fields: any;
     static indexColumn(info: CSVDataSourceColumnInfo): (target: any, propertyKey: string) => void;
