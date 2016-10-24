@@ -13,12 +13,41 @@ The Steps are
 # Classes
 
 ## ImportWorkflow
-## Payload
-## DataSource
+This Class represents the Aspect of importing. 
+Mainly it represents the lifecycle of the import process as a whole. 
 
-## XLSDataSource
-## CSVDataSource
+
+## Payload
+This Class represents one piece of data. e.g. one row in a csv import.
+
+## DataSource
+This Class represents a file or a set of files to be imported. A XLS File or an CSV File.
+
+### XLSDataSource
+Concrete Implementation for a generic XLS Datasource
+
+### CSVDataSource
+Concrete Implementation for a generic CSV Datasource
 
 # Annotations
 
-# Example 
+
+# Example
+```
+let importer = new CSVDataSource(CSVCols);
+        importer.open("tests/CSVImporterTest.csv");
+
+        var handler:WorkflowEventHandler<CSVCols> = {
+            "import": (data):Promise<CSVCols> => {
+              if ( data.spalte_a == "1") {
+                throw new SkipPayload("Test");
+              }
+              return Promise.resolve(data);
+            }
+        };
+        let worker:ImportWorkflow<CSVCols> = new ImportWorkflow<CSVCols>();
+        worker.on(handler);
+        var results:CSVCols[] = await worker.run(importer.generatePayload());
+
+
+```
