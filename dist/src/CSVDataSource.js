@@ -1,16 +1,16 @@
+"use strict";
 /**
  Importer for CSV Files
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const DataSource_1 = require("./DataSource");
 var parse = require('csv-parse/lib/sync');
 var merge = require("merge-deep");
 const fs = require("fs");
 class CSVDataSource extends DataSource_1.DataSource {
     constructor(ctor) {
-        super();
+        super(ctor);
         this.filename = "";
-        this.payloadClass = ctor;
     }
     open(filename, options = {
             "delimiter": ";",
@@ -31,50 +31,41 @@ class CSVDataSource extends DataSource_1.DataSource {
         this.options = options;
         this.parseCsv();
     }
+    close() {
+    }
+    readHeadlines() {
+        var hl = this.parsed.shift();
+        var c = this.payloadClass;
+        var col = c.getFields();
+        this._dynamicFields = {};
+        hl.forEach((rowLabel, index) => {
+            for (var colIdx in col) {
+                if (!this._dynamicFields[colIdx]) {
+                    this._dynamicFields[colIdx] = {};
+                }
+                var colInfo = col[colIdx];
+                // if the col has previously been found
+                if (this._dynamicFields[colIdx].found)
+                    continue;
+                if (rowLabel.match(colInfo.regex)) {
+                    this._dynamicFields[colIdx].index = index;
+                    this._dynamicFields[colIdx].found = true;
+                    break;
+                }
+            }
+        });
+        if (!this.allRequiredFound()) {
+            throw new Error("Not all required fields found in xls");
+        }
+        ;
+    }
     parseCsv() {
         this.parsed = parse(this.content, {
             delimiter: this.options.delimiter
         });
         if (this.options.hasHeadline) {
-            var hl = this.parsed.shift();
-            var c = this.payloadClass;
-            var col = c.getFields();
-            this._dynamicFields = {};
-            hl.forEach((rowLabel, index) => {
-                for (var colIdx in col) {
-                    if (!this._dynamicFields[colIdx]) {
-                        this._dynamicFields[colIdx] = {};
-                    }
-                    var colInfo = col[colIdx];
-                    // if the col has previously been found
-                    if (this._dynamicFields[colIdx].found)
-                        continue;
-                    if (rowLabel.match(colInfo.regex)) {
-                        this._dynamicFields[colIdx].index = index;
-                        this._dynamicFields[colIdx].found = true;
-                        break;
-                    }
-                }
-            });
-            if (!this.allRequiredFound()) {
-                throw new Error("Not all required fields found in xls");
-            }
-            ;
+            this.readHeadlines();
         }
-    }
-    allRequiredFound() {
-        var allRequiredFound = true;
-        for (var idx in this.fields) {
-            var item = this.fields[idx];
-            if (item.required) {
-                allRequiredFound = allRequiredFound && item.found;
-                if (!item.found) {
-                    console.error("Not all required fields found in xls; Missing: " + idx);
-                    return;
-                }
-            }
-        }
-        return allRequiredFound;
     }
     *generatePayload() {
         // FIXME: do this the streaming way
@@ -105,30 +96,6 @@ class CSVDataSource extends DataSource_1.DataSource {
                 yield newObject;
             }
         }
-    }
-    /**
-    gets the static and dynamic mappings for the fields in T
-    **/
-    get fields() {
-        var c = this.payloadClass;
-        return merge(this._dynamicFields, c._fields);
-    }
-    // decorators
-    static indexColumn(info) {
-        return function (target, propertyKey) {
-            target.constructor.addField(propertyKey);
-            target.constructor.setField(propertyKey, "index", info.index);
-            target.constructor.setField(propertyKey, "converter", info.converter);
-            target.constructor.setField(propertyKey, "required", info.required);
-        };
-    }
-    static regexColumn(info) {
-        return function (target, propertyKey) {
-            target.constructor.addField(propertyKey);
-            target.constructor.setField(propertyKey, "regex", info.regex);
-            target.constructor.setField(propertyKey, "converter", info.converter);
-            target.constructor.setField(propertyKey, "required", info.required);
-        };
     }
 }
 exports.CSVDataSource = CSVDataSource;

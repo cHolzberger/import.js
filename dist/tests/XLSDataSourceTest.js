@@ -5,8 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const mocha_typescript_1 = require("mocha-typescript");
-const chai_1 = require('chai');
+const chai_1 = require("chai");
 const XLSDataSource_1 = require("../src/XLSDataSource");
 const ImportPayload_1 = require("../src/ImportPayload");
 class XLSCols extends ImportPayload_1.ImportPayload {
@@ -114,6 +115,14 @@ let XLSDataSourceTest = class XLSDataSourceTest {
         chai_1.expect(importer.fields.spalte_b.index).to.equal(1);
         chai_1.expect(importer.fields.spalte_c.index).to.equal(2);
     }
+    parse_test_richtext() {
+        let importer = new XLSDataSource_1.XLSDataSource(XLSCols);
+        importer.open("tests/XLSImporterRT.xlsx", { hasHeadline: false, strictMode: true });
+        let gen = importer.generatePayload();
+        var val = gen.next().value;
+        val = gen.next().value;
+        chai_1.expect(val.spalte_b).to.equal('b long text <span style="font-size:12;">whatever</span><span style="font-size:12;"><b> bold</b></span>');
+    }
     parse_test_headlines_data() {
         let importer = new XLSDataSource_1.XLSDataSource(XLSHeadlineCols);
         importer.open("tests/XLSImporterTestHeadline.xls", { hasHeadline: true, strictMode: true });
@@ -143,6 +152,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test("should identify the index of the headlines")
 ], XLSDataSourceTest.prototype, "parse_test_headlines", null);
+__decorate([
+    mocha_typescript_1.test("should load richtext as html")
+], XLSDataSourceTest.prototype, "parse_test_richtext", null);
 __decorate([
     mocha_typescript_1.test("should return the correct values when searching for headlines")
 ], XLSDataSourceTest.prototype, "parse_test_headlines_data", null);

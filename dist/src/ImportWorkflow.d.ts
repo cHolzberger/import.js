@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface WorkflowEventHandler<T> {
     startImport?(): Promise<T>;
     finishImport?(data: T[]): Promise<T>;

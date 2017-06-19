@@ -1,7 +1,8 @@
+"use strict";
 /**
  * generic payload for importer
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class ImportPayload {
     static setField(name, key, value) {
         var c = this;

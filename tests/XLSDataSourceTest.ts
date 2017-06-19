@@ -127,12 +127,25 @@ class XLSDataSourceTest {
         expect(importer.fields.spalte_c.index).to.equal(2);
     }
 
+    @test("should load richtext as html")
+    parse_test_richtext() {
+        let importer = new XLSDataSource(XLSCols);
+        importer.open("tests/XLSImporterRT.xlsx", {hasHeadline: false, strictMode: true});
+        let gen = importer.generatePayload();
+        var val = <XLSCols>gen.next().value;
+        val = <XLSCols>gen.next().value;
+
+        expect(val.spalte_b).to.equal('b long text <span style="font-size:12;">whatever</span><span style="font-size:12;"><b> bold</b></span>');
+    }
+
+
     @test("should return the correct values when searching for headlines")
     parse_test_headlines_data() {
         let importer = new XLSDataSource(XLSHeadlineCols);
         importer.open("tests/XLSImporterTestHeadline.xls", {hasHeadline: true, strictMode: true});
         let gen = importer.generatePayload();
         var val = <XLSCols>gen.next().value;
+        
         expect(val.spalte_a).to.equal("1");
     }
 }
