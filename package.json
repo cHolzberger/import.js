@@ -1,6 +1,6 @@
 {
   "name": "import.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/src/main.js",
   "types": "dist/src/main.d.ts",
